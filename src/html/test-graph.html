@@ -1,39 +1,60 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
-    <title>test graph</title>
-<script type="text/javascript" src="socialcalcconstants.js"></script>
-<script type="text/javascript" src="socialcalc-3.js"></script>
-<script type="text/javascript" src="socialcalctableeditor.js"></script>
-<script type="text/javascript" src="formatnumber2.js"></script>
-<script type="text/javascript" src="formula1.js"></script>
-<script type="text/javascript" src="socialcalcpopup.js"></script>
-<script type="text/javascript"
-src="socialcalcspreadsheetcontrol.js"></script>
-<script type="text/javascript" src="socialcalcgraph.js"></script>
-<link rel="stylesheet" type="text/css" href="socialcalc.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialCalc Graph Test</title>
+    <meta name="description" content="Test page for SocialCalc graphing and charting functionality">
+    <!-- SocialCalc Core Files -->
+    <script src="../js/core/constants.js"></script>
+    <script src="../js/core/socialcalc-engine.js"></script>
+    <script src="../js/core/number-formatter.js"></script>
+    <script src="../js/core/formula-parser.js"></script>
+    
+    <!-- SocialCalc UI Components -->
+    <script src="../js/ui/table-editor.js"></script>
+    <script src="../js/ui/popup-manager.js"></script>
+    <script src="../js/ui/spreadsheet-control.js"></script>
+    
+    <!-- SocialCalc Visualization -->
+    <script src="../js/visualization/graph-manager.js"></script>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../css/socialcalc.css">
 </head>
-<body onresize="spreadsheet.DoOnResize();">
 
-<div id="tableeditor" style="margin:8px 10px 10px 10px;">editor goes here</div>
- <div id="msg" onclick="this.innerHTML='&nbsp;';"></div>
+<body>
+    <div class="container">
+        <header>
+            <h1>SocialCalc Graph Test</h1>
+            <p>Test environment for graphing and charting functionality</p>
+        </header>
+        
+        <main>
+            <section id="tableeditor" role="application" aria-label="Spreadsheet with graphing">
+                <p>Loading spreadsheet editor...</p>
+            </section>
+            
+            <aside id="msg" role="status" aria-live="polite">
+                &nbsp;
+            </aside>
+        </main>
+    </div>
 
 
-<script>
+    <script>
+        // Initialize SocialCalc graph test when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configure SocialCalc callbacks
+            SocialCalc.EvalUserScripts = () => {};
+            SocialCalc.CallOutOnRenderCell = () => {};
 
-// start everything
-   SocialCalc.EvalUserScripts = function() {
-   }
+            // Set image paths
+            SocialCalc.Constants.defaultImagePrefix = '../images/sc-';
+            SocialCalc.Popup.imagePrefix = '../images/sc-';
 
-   SocialCalc.CallOutOnRenderCell = function() {
-   }
-
- 
-   SocialCalc.Constants.defaultImagePrefix = "images/sc-";
-   SocialCalc.Popup.imagePrefix = "images/sc-";
-
-   var spreadsheet = new SocialCalc.SpreadsheetControl();
+            // Initialize spreadsheet control
+            const spreadsheet = new SocialCalc.SpreadsheetControl();
 
    // Set up the tabs we want
 
@@ -41,10 +62,11 @@ src="socialcalcspreadsheetcontrol.js"></script>
 
    spreadsheet.tabs.splice(spreadsheet.tabnums.audit, 1);
 
-   spreadsheet.tabnums = {};
-   for (var i=0; i<spreadsheet.tabs.length; i++) {
-      spreadsheet.tabnums[spreadsheet.tabs[i].name] = i;
-      }
+            // Reset tab numbers
+            spreadsheet.tabnums = {};
+            for (let i = 0; i < spreadsheet.tabs.length; i++) {
+                spreadsheet.tabnums[spreadsheet.tabs[i].name] = i;
+            }
 
    // Add Plain
 
@@ -54,17 +76,17 @@ src="socialcalcspreadsheetcontrol.js"></script>
       ' <div style="%tbt.">&nbsp;</div>'+
       '</div>',
       view: "plain",
-      onclick:
-         function(s, t) {
-            s.views.plain.element.innerHTML = s.CreateSheetHTML();
+            onclick: (s, t) => {
+                s.views.plain.element.innerHTML = s.CreateSheetHTML();
             },
       onclickFocus: true
       });
 
-   spreadsheet.views["plain"] = {name: "plain",
-      divStyle: "border:1px solid black;overflow:auto;",
-      html: 'Plain View'
-      };
+            spreadsheet.views.plain = {
+                name: 'plain',
+                divStyle: 'border:1px solid black;overflow:auto;',
+                html: 'Plain View'
+            };
 
    // Add Graph
 

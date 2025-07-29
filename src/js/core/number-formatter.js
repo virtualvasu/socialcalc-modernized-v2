@@ -136,35 +136,37 @@ SocialCalc.FormatNumber.datevalues = {
     seconds_in_an_hour: 60 * 60
 };
 
-/* *******************
+/**
+ * Format a number according to the specified format string
+ * @param {number|string} rawvalue - The number to format
+ * @param {string} format_string - The format specification
+ * @param {string} [currency_char] - Currency symbol to use
+ * @returns {string} The formatted number string
+ */
+SocialCalc.FormatNumber.formatNumberWithFormat = (rawvalue, format_string, currency_char) => {
+    const scc = SocialCalc.Constants;
+    const scfn = SocialCalc.FormatNumber;
 
- result = SocialCalc.FormatNumber.formatNumberWithFormat = function(rawvalue, format_string, currency_char)
+    // Variable declarations
+    let op, operandstr, fromend, cval, operandstrlc;
+    let startval, estartval;
+    let hrs, mins, secs, ehrs, emins, esecs, ampmstr, ymd;
+    let minOK, mpos;
+    let result = '';
+    let thisformat;
+    let section, gotcomparison, compop, compval, cpos, oppos;
+    let sectioninfo;
+    let i, decimalscale, scaledvalue, strvalue, strparts, integervalue, fractionvalue;
+    let integerdigits2, integerpos, fractionpos, textcolor, textstyle, separatorchar, decimalchar;
+    
+    // Ensure numeric input
+    rawvalue = Number(rawvalue);
+    let value = rawvalue;
+    if (!isFinite(value)) return 'NaN';
 
-************************* */
-
-SocialCalc.FormatNumber.formatNumberWithFormat = function(rawvalue, format_string, currency_char) {
-
-   var scc = SocialCalc.Constants;
-   var scfn = SocialCalc.FormatNumber;
-
-   var op, operandstr, fromend, cval, operandstrlc;
-   var startval, estartval;
-   var hrs, mins, secs, ehrs, emins, esecs, ampmstr, ymd;
-   var minOK, mpos;
-   var result="";
-   var thisformat;
-   var section, gotcomparison, compop, compval, cpos, oppos;
-   var sectioninfo;
-   var i, decimalscale, scaledvalue, strvalue, strparts, integervalue, fractionvalue;
-   var integerdigits2, integerpos, fractionpos, textcolor, textstyle, separatorchar, decimalchar;
-   var value; // working copy to change sign, etc.
-
-   rawvalue = rawvalue-0; // make sure a number
-   value = rawvalue;
-   if (!isFinite(value)) return "NaN";
-
-   var negativevalue = value < 0 ? 1 : 0; // determine sign, etc.
-   if (negativevalue) value = -value;
+    // Handle negative values
+    const negativevalue = value < 0;
+    if (negativevalue) value = -value;
    var zerovalue = value == 0 ? 1 : 0;
 
    currency_char = currency_char || scc.FormatNumber_DefaultCurrency;
