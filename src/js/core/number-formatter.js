@@ -30,12 +30,22 @@
 //
 */
 
-   var SocialCalc;
-   if (!SocialCalc) SocialCalc = {}; // May be used with other SocialCalc libraries or standalone
+// Initialize SocialCalc namespace if not exists
+const SocialCalc = window.SocialCalc || (window.SocialCalc = {});
 
+/**
+ * SocialCalc Number Formatting Library
+ * Handles formatting of numbers, dates, currencies, and other data types
+ * according to spreadsheet formatting conventions.
+ * @namespace
+ */
 SocialCalc.FormatNumber = {};
 
-SocialCalc.FormatNumber.format_definitions = {}; // Parsed formats are stored here globally
+/**
+ * Global cache for parsed format definitions
+ * @type {Object<string, Object>}
+ */
+SocialCalc.FormatNumber.format_definitions = {};
 
 // Most constants that are often customized for localization are in the SocialCalc.Constants module.
 // If you use this module standalone, provide at least the "FormatNumber" values.
@@ -45,28 +55,86 @@ SocialCalc.FormatNumber.format_definitions = {}; // Parsed formats are stored he
 // but that would make them incompatible with other uses and is discouraged.
 //
 
-SocialCalc.FormatNumber.separatorchar = ",";
-SocialCalc.FormatNumber.decimalchar = ".";
-SocialCalc.FormatNumber.daynames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-SocialCalc.FormatNumber.daynames3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-SocialCalc.FormatNumber.monthnames3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-SocialCalc.FormatNumber.monthnames = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
-                                      "October", "November", "December"];
+// Localization constants
+SocialCalc.FormatNumber.separatorchar = ',';
+SocialCalc.FormatNumber.decimalchar = '.';
 
-SocialCalc.FormatNumber.allowedcolors =
-   {BLACK: "#000000", BLUE: "#0000FF", CYAN: "#00FFFF", GREEN: "#00FF00", MAGENTA: "#FF00FF",
-    RED: "#FF0000", WHITE: "#FFFFFF", YELLOW: "#FFFF00"};
+/**
+ * Day names for date formatting
+ */
+SocialCalc.FormatNumber.daynames = [
+    'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+];
 
-SocialCalc.FormatNumber.alloweddates =
-   {H: "h]", M: "m]", MM: "mm]", S: "s]", SS: "ss]"};
+SocialCalc.FormatNumber.daynames3 = [
+    'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+];
+
+/**
+ * Month names for date formatting
+ */
+SocialCalc.FormatNumber.monthnames3 = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+];
+
+SocialCalc.FormatNumber.monthnames = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+    'October', 'November', 'December'
+];
+
+/**
+ * Allowed color values for formatting
+ */
+SocialCalc.FormatNumber.allowedcolors = {
+    BLACK: '#000000',
+    BLUE: '#0000FF',
+    CYAN: '#00FFFF',
+    GREEN: '#00FF00',
+    MAGENTA: '#FF00FF',
+    RED: '#FF0000',
+    WHITE: '#FFFFFF',
+    YELLOW: '#FFFF00'
+};
+
+/**
+ * Allowed date format tokens
+ */
+SocialCalc.FormatNumber.alloweddates = {
+    H: 'h]',
+    M: 'm]',
+    MM: 'mm]',
+    S: 's]',
+    SS: 'ss]'
+};
 
 // Other constants
 
-SocialCalc.FormatNumber.commands =
-   {copy: 1, color: 2, integer_placeholder: 3, fraction_placeholder: 4, decimal: 5,
-    currency: 6, general:7, separator: 8, date: 9, comparison: 10, section: 11, style: 12};
+/**
+ * Format command constants
+ */
+SocialCalc.FormatNumber.commands = {
+    copy: 1,
+    color: 2,
+    integer_placeholder: 3,
+    fraction_placeholder: 4,
+    decimal: 5,
+    currency: 6,
+    general: 7,
+    separator: 8,
+    date: 9,
+    comparison: 10,
+    section: 11,
+    style: 12
+};
 
-SocialCalc.FormatNumber.datevalues = {julian_offset: 2415019, seconds_in_a_day: 24 * 60 * 60, seconds_in_an_hour: 60 * 60};
+/**
+ * Date calculation constants
+ */
+SocialCalc.FormatNumber.datevalues = {
+    julian_offset: 2415019,
+    seconds_in_a_day: 24 * 60 * 60,
+    seconds_in_an_hour: 60 * 60
+};
 
 /* *******************
 
