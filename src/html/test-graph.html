@@ -45,13 +45,21 @@
     <script>
         // Initialize SocialCalc graph test when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
+            // Ensure objects exist before setting properties
+            if (!SocialCalc.Constants) SocialCalc.Constants = {};
+            if (!SocialCalc.Popup) SocialCalc.Popup = {};
+            
             // Configure SocialCalc callbacks
             SocialCalc.EvalUserScripts = () => {};
             SocialCalc.CallOutOnRenderCell = () => {};
 
-            // Set image paths
-            SocialCalc.Constants.defaultImagePrefix = '../images/sc-';
-            SocialCalc.Popup.imagePrefix = '../images/sc-';
+            // Set correct image paths
+            if (SocialCalc.Constants) {
+                SocialCalc.Constants.defaultImagePrefix = '../images/sc-';
+            }
+            if (SocialCalc.Popup) {
+                SocialCalc.Popup.imagePrefix = '../images/sc-';
+            }
 
             // Initialize spreadsheet control
             const spreadsheet = new SocialCalc.SpreadsheetControl();
@@ -167,4 +175,3 @@
 </script>
  </body>
 </html>
-

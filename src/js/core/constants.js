@@ -30,7 +30,8 @@
 */
 
 // Initialize SocialCalc namespace if not exists
-const SocialCalc = window.SocialCalc || (window.SocialCalc = {});
+var SocialCalc;
+if (!SocialCalc) SocialCalc = {};
 
 // *************************************
 //

@@ -90,6 +90,17 @@
     <script>
         // Initialize SocialCalc components when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
+            // Ensure Callbacks object exists
+            if (!SocialCalc.Callbacks) SocialCalc.Callbacks = {};
+            
+            // Set correct image paths
+            if (SocialCalc.Constants) {
+                SocialCalc.Constants.defaultImagePrefix = '../images/sc-';
+            }
+            if (SocialCalc.Popup) {
+                SocialCalc.Popup.imagePrefix = '../images/sc-';
+            }
+            
             // Disable broadcast for local testing
             SocialCalc.Callbacks.broadcast = (a, b) => {};
             
