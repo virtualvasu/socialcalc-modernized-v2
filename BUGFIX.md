@@ -65,9 +65,27 @@ The `test-graph.html` file had incomplete JavaScript with missing closing braces
 **File Fixed:**
 - ✅ `src/html/test-graph.html` - Completed JavaScript structure
 
+## Issue: 404 Script Errors - Missing Files in test-highcharts.html
+
+### Problem:
+The `test-highcharts.html` and `test-sparklines.html` files hadn't been modernized and were still pointing to old file paths that no longer exist.
+
+### Solution:
+Completely rewrote both HTML files with:
+- Modern HTML5 structure
+- Correct script paths to new folder organization
+- Updated jQuery to 3.6.0
+- Modern CSS and JavaScript patterns
+- Proper event handling with `addEventListener`
+- ARIA attributes for accessibility
+
+**Files Fixed:**
+- ✅ `src/html/test-highcharts.html` - Complete rewrite with modern structure
+- ✅ `src/html/test-sparklines.html` - Complete rewrite with modern structure
+
 ## Status: ✅ RESOLVED
 
-The application should now load without syntax errors and with all images loading correctly!
+All HTML test files now use the modernized folder structure and should load without errors!
 
 ### Expected Behavior After Fix:
 - ✅ No more "already declared" errors
