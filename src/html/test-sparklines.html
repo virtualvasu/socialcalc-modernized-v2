@@ -105,6 +105,9 @@
             // Disable broadcast for local testing
             SocialCalc.Callbacks.broadcast = (a, b) => {};
             
+            // Define missing EvalUserScripts function
+            SocialCalc.EvalUserScripts = () => {};
+            
             // Initialize spreadsheet control
             const spreadsheet = new SocialCalc.SpreadsheetControl();
             
