@@ -29,9 +29,31 @@ Added safety checks to ensure objects exist before setting properties.
 - ✅ `src/html/test-workbook.html` - Added Callbacks object check
 - ✅ `src/html/test-graph.html` - Added Constants/Popup object checks
 
+## Issue: 404 Image Errors - Images Not Found
+
+### Problem:
+JavaScript was looking for images at `/src/html/images/` but images are actually located at `/src/images/`.
+
+### Solution:
+Fixed image path configuration in multiple locations:
+
+**Files Fixed:**
+- ✅ `src/html/test-workbook.html` - Set correct image prefix
+- ✅ `src/html/test-graph.html` - Updated image path configuration  
+- ✅ `src/js/core/constants.js` - Fixed defaultImagePrefix and CSS background paths
+
+**Changes Made:**
+```javascript
+// Before
+defaultImagePrefix: "images/sc-"
+
+// After  
+defaultImagePrefix: "../images/sc-"
+```
+
 ## Status: ✅ RESOLVED
 
-The application should now load without syntax errors. Try refreshing your browser!
+The application should now load without syntax errors and with all images loading correctly!
 
 ### Expected Behavior After Fix:
 - ✅ No more "already declared" errors

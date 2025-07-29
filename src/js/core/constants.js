@@ -135,7 +135,7 @@ SocialCalc.Constants = {
    defaultGridCSS: "1px solid #C0C0C0;", // used as style to set each border when grid enabled (was #ECECEC)
 
    defaultCommentClass: "", // class added to cells with non-null comments when grid enabled
-   defaultCommentStyle: "background-repeat:no-repeat;background-position:top right;background-image:url(images/sc-commentbg.gif);", // style added to cells with non-null comments when grid enabled
+   defaultCommentStyle: "background-repeat:no-repeat;background-position:top right;background-image:url(../images/sc-commentbg.gif);", // style added to cells with non-null comments when grid enabled
    defaultCommentNoGridClass: "", // class added to cells with non-null comments when grid not enabled
    defaultCommentNoGridStyle: "", // style added to cells with non-null comments when grid not enabled
 
@@ -169,7 +169,7 @@ SocialCalc.Constants = {
    //*** SocialCalc.format_text_for_display
 
    defaultLinkFormatString: '<span style="font-size:smaller;text-decoration:none !important;background-color:#66B;color:#FFF;">Link</span>', // used for format "text-link"; you could make this an img tag if desired
-//   defaultLinkFormatString: '<img src="images/sc-linkout.gif" border="0" alt="Link out" title="Link out">',
+//   defaultLinkFormatString: '<img src="../images/sc-linkout.gif" border="0" alt="Link out" title="Link out">',
    defaultPageLinkFormatString: '<span style="font-size:smaller;text-decoration:none !important;background-color:#66B;color:#FFF;">Page</span>', // used for format "text-link"; you could make this an img tag if desired
 
    //*** SocialCalc.format_number_for_display
@@ -186,7 +186,7 @@ SocialCalc.Constants = {
 
    //*** SocialCalc.TableEditor
 
-   defaultImagePrefix: "images/sc-", // URL prefix for images (e.g., "/images/sc")
+   defaultImagePrefix: "../images/sc-", // URL prefix for images relative to HTML files
    defaultTableEditorIDPrefix: "te_", // if present, many TableEditor elements are assigned IDs with this prefix
    defaultPageUpDnAmount: 15, // number of rows to move cursor on PgUp/PgDn keys (numeric)
 
