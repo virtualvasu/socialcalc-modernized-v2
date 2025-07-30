@@ -14,7 +14,8 @@
       "Bash(cp /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/static/formula1.js /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/src/js/core/formula-parser.js)",
       "Bash(mkdir -p /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/lib/vendor/jquery)",
       "Bash(cp /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/static/jquery.flot.js /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/lib/vendor/jquery/)",
-      "Bash(ls /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/src/images/)"
+      "Bash(ls /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/src/images/)",
+      "Bash(node -c src/js/workbook/workbook.js)"
     ],
     "deny": []
   }

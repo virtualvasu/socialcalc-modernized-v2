@@ -1,4 +1,3 @@
-
 //
 // Workbook is a collection of sheets that are worked upon together
 // 
@@ -8,62 +7,191 @@
 //
 //
 
-var SocialCalc;
-if (!SocialCalc) {
+if (!window.SocialCalc) {
 	alert("Main SocialCalc code module needed");
-    SocialCalc = {};
+    window.SocialCalc = {};
 }
+// const SocialCalc = window.SocialCalc;
 
-// Constructor:
+/**
+ * WorkBook is a collection of sheets that are worked upon together
+ * The WorkBook class models and manages the collection of sheets
+ * @class
+ */
+SocialCalc.WorkBook = class {
+    /**
+     * Creates a new WorkBook instance
+     * @param {Object} spread - The spreadsheet control
+     */
+    constructor(spread) {
+        this.spreadsheet = spread; // this is the spreadsheet control
+        this.defaultsheetname = null;
+        this.sheetArr = {};  // misnomer, this is not really an array
+        this.clipsheet = {}; // for copy paste of sheets
+    }
 
-SocialCalc.WorkBook = function(spread) {
-	this.spreadsheet = spread; // this is the spreadsheet control
-   	this.defaultsheetname = null;
-	this.sheetArr = {};  // misnomer, this is not really an array
-	this.clipsheet = {}; // for copy paste of sheets
-}
+    /**
+     * Initializes the WorkBook with a default sheet
+     * @param {string} defaultsheet - The name of the default sheet
+     * @returns {*} Result of the initialization
+     */
+    InitializeWorkBook(defaultsheet) {
+        return SocialCalc.InitializeWorkBook(this, defaultsheet);
+    }
 
-// Methods
+    /**
+     * Adds a new sheet to the workbook without switching to it
+     * @param {string} sheetid - The sheet ID
+     * @param {string} sheetname - The sheet name
+     * @param {string} savestr - Saved sheet data
+     * @returns {*} Result of the operation
+     */
+    AddNewWorkBookSheetNoSwitch(sheetid, sheetname, savestr) {
+        return SocialCalc.AddNewWorkBookSheetNoSwitch(this, sheetid, sheetname, savestr);
+    }
 
-SocialCalc.WorkBook.prototype.InitializeWorkBook = function(defaultsheet) {
-	return SocialCalc.InitializeWorkBook(this, defaultsheet);
-}
+    /**
+     * Adds a new sheet to the workbook and switches to it
+     * @param {string} sheetname - The new sheet name
+     * @param {string} oldsheetname - The old sheet name
+     * @param {boolean} fromclip - Whether the sheet is from clipboard
+     * @param {Object} spread - Optional existing spreadsheet object
+     * @returns {*} Result of the operation
+     */
+    AddNewWorkBookSheet(sheetname, oldsheetname, fromclip, spread) {
+        return SocialCalc.AddNewWorkBookSheet(this, sheetname, oldsheetname, fromclip, spread);
+    }
 
+    /**
+     * Activates a specific sheet in the workbook
+     * @param {string} sheetname - The sheet to activate
+     * @param {string} oldsheetname - The previously active sheet
+     * @returns {*} Result of the activation
+     */
+    ActivateWorkBookSheet(sheetname, oldsheetname) {
+        return SocialCalc.ActivateWorkBookSheet(this, sheetname, oldsheetname);
+    }
 
-SocialCalc.WorkBook.prototype.AddNewWorkBookSheetNoSwitch = function(sheetid,sheetname, savestr) {return SocialCalc.AddNewWorkBookSheetNoSwitch(this, sheetid,sheetname,savestr);};
-SocialCalc.WorkBook.prototype.AddNewWorkBookSheet = function(sheetname,oldsheetname, fromclip, spread) {return SocialCalc.AddNewWorkBookSheet(this, sheetname,oldsheetname, fromclip, spread);};
-SocialCalc.WorkBook.prototype.ActivateWorkBookSheet = function(sheetname,oldsheetname) {return SocialCalc.ActivateWorkBookSheet(this,sheetname,oldsheetname);};
-SocialCalc.WorkBook.prototype.DeleteWorkBookSheet = function(sheetname,cursheetname) {return SocialCalc.DeleteWorkBookSheet(this,sheetname,cursheetname);};
-SocialCalc.WorkBook.prototype.SaveWorkBookSheet = function(sheetid) {return SocialCalc.SaveWorkBookSheet(this, sheetid);};
-SocialCalc.WorkBook.prototype.LoadRenameWorkBookSheet = function(sheetid, savestr, newname) {return SocialCalc.LoadRenameWorkBookSheet(this, sheetid, savestr, newname);};
-SocialCalc.WorkBook.prototype.RenameWorkBookSheet = function(oldname, newname, sheetid) {return SocialCalc.RenameWorkBookSheet(this, oldname, newname, sheetid);};
-SocialCalc.WorkBook.prototype.CopyWorkBookSheet = function(sheetid) {return SocialCalc.CopyWorkBookSheet(this, sheetid);};
-SocialCalc.WorkBook.prototype.PasteWorkBookSheet = function(newid, oldid) {return SocialCalc.PasteWorkBookSheet(this, newid, oldid);};
-SocialCalc.WorkBook.prototype.RenderWorkBookSheet = function() {return SocialCalc.RenderWorkBookSheet(this);};
+    /**
+     * Deletes a sheet from the workbook
+     * @param {string} sheetname - The sheet to delete
+     * @param {string} cursheetname - The current sheet name
+     * @returns {*} Result of the deletion
+     */
+    DeleteWorkBookSheet(sheetname, cursheetname) {
+        return SocialCalc.DeleteWorkBookSheet(this, sheetname, cursheetname);
+    }
 
-SocialCalc.WorkBook.prototype.SheetNameExistsInWorkBook = function(name) {
-    return SocialCalc.SheetNameExistsInWorkBook(this,name);
-}
+    /**
+     * Saves a workbook sheet and returns its data
+     * @param {string} sheetid - The sheet ID to save
+     * @returns {Object} Object containing the saved sheet data
+     */
+    SaveWorkBookSheet(sheetid) {
+        return SocialCalc.SaveWorkBookSheet(this, sheetid);
+    }
 
-SocialCalc.WorkBook.prototype.WorkbookScheduleCommand = function(cmd, isremote) {
-    return SocialCalc.WorkbookScheduleCommand(this, cmd, isremote);
-    };
+    /**
+     * Loads and renames a workbook sheet
+     * @param {string} sheetid - The sheet ID
+     * @param {string} savestr - The saved sheet data
+     * @param {string} newname - The new name for the sheet
+     * @returns {*} Result of the operation
+     */
+    LoadRenameWorkBookSheet(sheetid, savestr, newname) {
+        return SocialCalc.LoadRenameWorkBookSheet(this, sheetid, savestr, newname);
+    }
 
-SocialCalc.WorkBook.prototype.WorkbookScheduleSheetCommand = function(cmd, isremote) {
-    return SocialCalc.WorkbookScheduleSheetCommand(this, cmd, isremote);
-    };
+    /**
+     * Renames a workbook sheet and updates all formula references
+     * @param {string} oldname - The current name of the sheet
+     * @param {string} newname - The new name for the sheet
+     * @param {string} sheetid - The sheet ID
+     * @returns {*} Result of the rename operation
+     */
+    RenameWorkBookSheet(oldname, newname, sheetid) {
+        return SocialCalc.RenameWorkBookSheet(this, oldname, newname, sheetid);
+    }
 
-// schedule some command - could be for sheet or for the workbook itself
-SocialCalc.WorkbookScheduleCommand = function WorkbookScheduleCommand(workbook, cmd, isremote) {
-    
-    //console.log("cmd ", cmd.cmdstr, cmd.cmdtype);
+    /**
+     * Copies a workbook sheet to the clipboard
+     * @param {string} sheetid - The sheet ID to copy
+     * @returns {*} Result of the copy operation
+     */
+    CopyWorkBookSheet(sheetid) {
+        return SocialCalc.CopyWorkBookSheet(this, sheetid);
+    }
 
-    if (cmd.cmdtype == "scmd") {
-	workbook.WorkbookScheduleSheetCommand(cmd, isremote);
+    /**
+     * Pastes a workbook sheet from the clipboard
+     * @param {string} newid - The new sheet ID
+     * @param {string} oldid - The old sheet ID
+     * @returns {*} Result of the paste operation
+     */
+    PasteWorkBookSheet(newid, oldid) {
+        return SocialCalc.PasteWorkBookSheet(this, newid, oldid);
+    }
+
+    /**
+     * Renders the current workbook sheet
+     * @returns {*} Result of the render operation
+     */
+    RenderWorkBookSheet() {
+        return SocialCalc.RenderWorkBookSheet(this);
+    }
+
+    /**
+     * Checks if a sheet name exists in the workbook
+     * @param {string} name - The sheet name to check
+     * @returns {string|null} The sheet ID if exists, null otherwise
+     */
+    SheetNameExistsInWorkBook(name) {
+        return SocialCalc.SheetNameExistsInWorkBook(this, name);
+    }
+
+    /**
+     * Schedules a command for the workbook
+     * @param {Object} cmd - The command object
+     * @param {boolean} isremote - Whether the command is remote
+     * @returns {*} Result of the command scheduling
+     */
+    WorkbookScheduleCommand(cmd, isremote) {
+        return SocialCalc.WorkbookScheduleCommand(this, cmd, isremote);
+    }
+
+    /**
+     * Schedules a sheet command for the workbook
+     * @param {Object} cmd - The command object
+     * @param {boolean} isremote - Whether the command is remote
+     * @returns {*} Result of the sheet command scheduling
+     */
+    WorkbookScheduleSheetCommand(cmd, isremote) {
+        return SocialCalc.WorkbookScheduleSheetCommand(this, cmd, isremote);
     }
 }
 
-SocialCalc.WorkbookScheduleSheetCommand = function WorkbookScheduleSheetCommand(workbook, cmd, isremote) {
+/**
+ * Schedules some command - could be for sheet or for the workbook itself
+ * @param {Object} workbook - The workbook instance
+ * @param {Object} cmd - The command object with cmdtype property
+ * @param {boolean} isremote - Whether the command is remote
+ */
+SocialCalc.WorkbookScheduleCommand = (workbook, cmd, isremote) => {
+    
+    //console.log(`cmd ${cmd.cmdstr} ${cmd.cmdtype}`);
+
+    if (cmd.cmdtype === "scmd") {
+	workbook.WorkbookScheduleSheetCommand(cmd, isremote);
+    }
+};
+
+/**
+ * Schedules a sheet command for the workbook
+ * @param {Object} workbook - The workbook instance
+ * @param {Object} cmd - The command object with id, cmdstr, and saveundo properties
+ * @param {boolean} isremote - Whether the command is remote
+ */
+SocialCalc.WorkbookScheduleSheetCommand = (workbook, cmd, isremote) => {
     //console.log(cmd.cmdtype,cmd.id,cmd.cmdstr);
   
     // check if sheet exists first
@@ -76,12 +204,17 @@ SocialCalc.WorkbookScheduleSheetCommand = function WorkbookScheduleSheetCommand(
 };
 
 
-SocialCalc.InitializeWorkBook = function InitializeWorkBook(workbook, defaultsheet) {
+/**
+ * Initializes the WorkBook with a default sheet
+ * @param {Object} workbook - The workbook instance to initialize
+ * @param {string} defaultsheet - The name of the default sheet
+ */
+SocialCalc.InitializeWorkBook = (workbook, defaultsheet) => {
 
    	workbook.defaultsheetname = defaultsheet;
 	
-	var spreadsheet = workbook.spreadsheet;
-	var defaultsheetname = workbook.defaultsheetname;
+	const { spreadsheet } = workbook;
+	const { defaultsheetname } = workbook;
 	
     // Initialize the Spreadsheet Control and display it
 
@@ -110,13 +243,20 @@ SocialCalc.InitializeWorkBook = function InitializeWorkBook(workbook, defaultshe
 	
 }
 
-SocialCalc.AddNewWorkBookSheetNoSwitch = function AddNewWorkBookSheetNoSwitch(workbook, sheetid, sheetname, savestr) {
+/**
+ * Adds a new sheet to the workbook without switching to it
+ * @param {Object} workbook - The workbook instance
+ * @param {string} sheetid - The sheet ID
+ * @param {string} sheetname - The sheet name
+ * @param {string} savestr - Saved sheet data
+ */
+SocialCalc.AddNewWorkBookSheetNoSwitch = (workbook, sheetid, sheetname, savestr) => {
 
-	//alert(sheetid+","+sheetname+","+savestr);
+	//alert(`${sheetid},${sheetname},${savestr}`);
 	
-	var spreadsheet = workbook.spreadsheet;
+	const { spreadsheet } = workbook;
 	
-	var newsheet = new SocialCalc.Sheet();
+	const newsheet = new SocialCalc.Sheet();
 	
 	SocialCalc.Formula.SheetCache.sheets[sheetname] = {
 		sheet: newsheet,
@@ -149,11 +289,19 @@ SocialCalc.AddNewWorkBookSheetNoSwitch = function AddNewWorkBookSheetNoSwitch(wo
 	
 }
 
-SocialCalc.AddNewWorkBookSheet = function AddNewWorkBookSheet(workbook, sheetid, oldsheetid, fromclip, spread){
+/**
+ * Adds a new sheet to the workbook and switches to it
+ * @param {Object} workbook - The workbook instance
+ * @param {string} sheetid - The new sheet ID
+ * @param {string} oldsheetid - The old sheet ID
+ * @param {boolean} fromclip - Whether the sheet is from clipboard
+ * @param {Object} spread - Optional existing spreadsheet object
+ */
+SocialCalc.AddNewWorkBookSheet = (workbook, sheetid, oldsheetid, fromclip, spread) => {
 
-	var spreadsheet = workbook.spreadsheet;
+	const { spreadsheet } = workbook;
 	
-	//alert("create new sheet "+sheetid+" old="+oldsheetid+" def="+workbook.defaultsheetname);
+	//alert(`create new sheet ${sheetid} old=${oldsheetid} def=${workbook.defaultsheetname}`);
 	
 	if (spread == null) {
 		spreadsheet.sheet = new SocialCalc.Sheet();
@@ -216,8 +364,8 @@ SocialCalc.AddNewWorkBookSheet = function AddNewWorkBookSheet(workbook, sheetid,
 		// this is the result of a paste sheet
 		//alert("from clip");
 		
-		if (workbook.clipsheet.savestr != null) {
-			//alert("sheetdata = "+workbook.clipsheet.savestr);
+		if (workbook.clipsheet.savestr !== null) {
+			//alert(`sheetdata = ${workbook.clipsheet.savestr}`);
 			spreadsheet.sheet.ParseSheetSave(workbook.clipsheet.savestr);
 		}
 		
@@ -238,18 +386,24 @@ SocialCalc.AddNewWorkBookSheet = function AddNewWorkBookSheet(workbook, sheetid,
 	
 }
 
-SocialCalc.ActivateWorkBookSheet = function ActivateWorkBookSheet(workbook, sheetnamestr, oldsheetnamestr) {
+/**
+ * Activates a specific sheet in the workbook
+ * @param {Object} workbook - The workbook instance
+ * @param {string} sheetnamestr - The sheet to activate
+ * @param {string} oldsheetnamestr - The previously active sheet
+ */
+SocialCalc.ActivateWorkBookSheet = (workbook, sheetnamestr, oldsheetnamestr) => {
 
-	var spreadsheet = workbook.spreadsheet;
+	const { spreadsheet } = workbook;
 	
-	//alert("activate "+sheetnamestr+" old="+oldsheetnamestr);
+	//alert(`activate ${sheetnamestr} old=${oldsheetnamestr}`);
 	
 	spreadsheet.sheet = workbook.sheetArr[sheetnamestr].sheet;
 	spreadsheet.context = workbook.sheetArr[sheetnamestr].context;
 
 	if (spreadsheet.context == null) {
 		//alert("context null")
-		//for (var sheet in workbook.sheetArr) alert(sheet+spreadsheet.sheet )
+		//for (const sheet in workbook.sheetArr) alert(`${sheet}${spreadsheet.sheet}`);
 		workbook.AddNewWorkBookSheet(sheetnamestr, oldsheetnamestr, false, spreadsheet.sheet)
 		return
 	}
@@ -281,16 +435,16 @@ SocialCalc.ActivateWorkBookSheet = function ActivateWorkBookSheet(workbook, shee
 	spreadsheet.editor.workingvalues.currentsheet = spreadsheet.sheet.sheetname;
         spreadsheet.editor.workingvalues.currentsheetid = spreadsheet.sheet.sheetid;
 
-	if (spreadsheet.editor.state!="start" && spreadsheet.editor.inputBox) 
+	if (spreadsheet.editor.state !== "start" && spreadsheet.editor.inputBox) 
 	  spreadsheet.editor.inputBox.element.focus();
 
-	if (spreadsheet.editor.state == "start") {
+	if (spreadsheet.editor.state === "start") {
 	    spreadsheet.editor.workingvalues.startsheet = spreadsheet.editor.workingvalues.currentsheet;
 	}
 	
 	//spreadsheet.editor.ScheduleRender();
 	
-        if (spreadsheet.editor.state != "start" && spreadsheet.editor.inputBox) {
+        if (spreadsheet.editor.state !== "start" && spreadsheet.editor.inputBox) {
 	    spreadsheet.editor.ScheduleRender();
 	} else {
 	    if (spreadsheet.sheet.attribs) {
@@ -306,65 +460,117 @@ SocialCalc.ActivateWorkBookSheet = function ActivateWorkBookSheet(workbook, shee
 	
 }   
 
-SocialCalc.DeleteWorkBookSheet = function DeleteWorkBookSheet(workbook, oldname, curname) {
-	
-	//alert("delete "+oldname+","+curname);
-	
-	delete workbook.sheetArr[oldname].context;
-	delete workbook.sheetArr[oldname].sheet;
-	delete workbook.sheetArr[oldname];
-	// take sheet out of the formula cache
-	delete SocialCalc.Formula.SheetCache.sheets[curname];
+/**
+ * Deletes a sheet from the workbook
+ * @param {Object} workbook - The workbook instance
+ * @param {string} oldname - The sheet to delete
+ * @param {string} curname - The current sheet name
+ */
+SocialCalc.DeleteWorkBookSheet = (workbook, oldname, curname) => {
+	try {
+		//alert(`delete ${oldname},${curname}`);
+		
+		if (!workbook.sheetArr[oldname]) {
+			throw new Error(`Sheet ${oldname} not found`);
+		}
+		
+		delete workbook.sheetArr[oldname].context;
+		delete workbook.sheetArr[oldname].sheet;
+		delete workbook.sheetArr[oldname];
+		// take sheet out of the formula cache
+		delete SocialCalc.Formula.SheetCache.sheets[curname];
+	} catch (error) {
+		console.error('Error in DeleteWorkBookSheet:', error);
+		throw error;
+	}
 }
 
 
-SocialCalc.SaveWorkBookSheet = function CreateSaveWorkBook(workbook, sheetid) {
-	var sheetstr = {}
-	sheetstr.savestr = workbook.sheetArr[sheetid].sheet.CreateSheetSave();
-	return sheetstr;
+/**
+ * Saves a workbook sheet and returns its data
+ * @param {Object} workbook - The workbook instance
+ * @param {string} sheetid - The sheet ID to save
+ * @returns {Object} Object containing the saved sheet data
+ */
+SocialCalc.SaveWorkBookSheet = (workbook, sheetid) => {
+	try {
+		if (!workbook.sheetArr[sheetid]) {
+			throw new Error(`Sheet with ID ${sheetid} not found`);
+		}
+		
+		const sheetstr = {};
+		sheetstr.savestr = workbook.sheetArr[sheetid].sheet.CreateSheetSave();
+		return sheetstr;
+	} catch (error) {
+		console.error('Error in SaveWorkBookSheet:', error);
+		throw error;
+	}
 } 
 
-SocialCalc.LoadRenameWorkBookSheet = function LoadRenameWorkBookSheet(workbook, sheetid, savestr, newname) {
-	
-	workbook.sheetArr[sheetid].sheet.ResetSheet();
-	workbook.sheetArr[sheetid].sheet.ParseSheetSave(savestr);
+/**
+ * Loads and renames a workbook sheet
+ * @param {Object} workbook - The workbook instance
+ * @param {string} sheetid - The sheet ID
+ * @param {string} savestr - The saved sheet data
+ * @param {string} newname - The new name for the sheet
+ */
+SocialCalc.LoadRenameWorkBookSheet = (workbook, sheetid, savestr, newname) => {
+	try {
+		if (!workbook.sheetArr[sheetid]) {
+			throw new Error(`Sheet with ID ${sheetid} not found`);
+		}
+		
+		workbook.sheetArr[sheetid].sheet.ResetSheet();
+		workbook.sheetArr[sheetid].sheet.ParseSheetSave(savestr);
 
-	if (workbook.sheetArr[sheetid].sheet.attribs) {
-	    workbook.sheetArr[sheetid].sheet.attribs.needsrecalc = "yes";
+		if (workbook.sheetArr[sheetid].sheet.attribs) {
+		    workbook.sheetArr[sheetid].sheet.attribs.needsrecalc = "yes";
+		}
+		
+		delete SocialCalc.Formula.SheetCache.sheets[workbook.sheetArr[sheetid].sheet.sheetname];
+		workbook.sheetArr[sheetid].sheet.sheetname = newname;
+		SocialCalc.Formula.SheetCache.sheets[newname] = {sheet: workbook.sheetArr[sheetid].sheet, name: newname};
+	} catch (error) {
+		console.error('Error in LoadRenameWorkBookSheet:', error);
+		throw error;
 	}
-	
-	delete SocialCalc.Formula.SheetCache.sheets[workbook.sheetArr[sheetid].sheet.sheetname];
-	workbook.sheetArr[sheetid].sheet.sheetname = newname;
-	SocialCalc.Formula.SheetCache.sheets[newname] = {sheet: workbook.sheetArr[sheetid].sheet, name: newname};
 }
 
-SocialCalc.RenderWorkBookSheet = function RenderWorkBookSheet(workbook) {
+/**
+ * Renders the current workbook sheet
+ * @param {Object} workbook - The workbook instance
+ */
+SocialCalc.RenderWorkBookSheet = (workbook) => {
 	workbook.spreadsheet.editor.ScheduleRender();
-}
+};
 
-SocialCalc.RenameWorkBookSheetCell = function(formula, oldname, newname) {
- 	var ttype, ttext, i, newcr;
-   	var updatedformula = "";
-   	var sheetref = false;
-   	var scf = SocialCalc.Formula;
-   	if (!scf) {
-   		return "Need SocialCalc.Formula";
-    }
-   	var tokentype = scf.TokenType;
-   	var token_op = tokentype.op;
-   	var token_string = tokentype.string;
-   	var token_coord = tokentype.coord;
-   	var tokenOpExpansion = scf.TokenOpExpansion;
+/**
+ * Renames sheet references in a formula cell
+ * @param {string} formula - The formula to update
+ * @param {string} oldname - The old sheet name
+ * @param {string} newname - The new sheet name
+ * @returns {string} The updated formula
+ */
+SocialCalc.RenameWorkBookSheetCell = (formula, oldname, newname) => {
+	try {
+	 	let ttype, ttext, i, newcr;
+	   	let updatedformula = "";
+	   	let sheetref = false;
+	   	const scf = SocialCalc.Formula;
+	   	if (!scf) {
+	   		throw new Error("SocialCalc.Formula is required");
+	    }
+   	const { TokenType, TokenOpExpansion } = scf;
+   	const { op: token_op, string: token_string, coord: token_coord } = TokenType;
 
-   	var parseinfo = SocialCalc.Formula.ParseFormulaIntoTokens(formula);
+   	const parseinfo = SocialCalc.Formula.ParseFormulaIntoTokens(formula);
 
    	for (i = 0; i < parseinfo.length; i++) {
-   		ttype = parseinfo[i].type;
-   		ttext = parseinfo[i].text;
-		//alert(ttype+","+ttext);
-		//console.log (scf.NormalizeSheetName(ttext) + "   " + oldname);
-		if ((ttype == tokentype.name) && (scf.NormalizeSheetName(ttext) == oldname) && (i < parseinfo.length)) {
-   			if ((parseinfo[i + 1].type == token_op) && (parseinfo[i + 1].text == "!")) {
+   		const { type: ttype, text: ttext } = parseinfo[i];
+		//alert(`${ttype},${ttext}`);
+		//console.log(`${scf.NormalizeSheetName(ttext)}   ${oldname}`);
+		if ((ttype === TokenType.name) && (scf.NormalizeSheetName(ttext) === oldname) && (i < parseinfo.length)) {
+   			if ((parseinfo[i + 1].type === token_op) && (parseinfo[i + 1].text === "!")) {
 				updatedformula += newname;//console.log (updatedformula);
 			} else {
 				updatedformula += ttext;//console.log (updatedformula);
@@ -373,16 +579,27 @@ SocialCalc.RenameWorkBookSheetCell = function(formula, oldname, newname) {
 			updatedformula += ttext;
 		}
    	}
-	//alert(updatedformula);
-	return updatedformula;
+		//alert(updatedformula);
+		return updatedformula;
+	} catch (error) {
+		console.error('Error in RenameWorkBookSheetCell:', error);
+		return formula; // Return original formula if error occurs
+	}
 }
 
-SocialCalc.RenameWorkBookSheet = function RenameWorkBookSheet(workbook, oldname, newname, sheetid) {
+/**
+ * Renames a workbook sheet and updates all formula references
+ * @param {Object} workbook - The workbook instance
+ * @param {string} oldname - The current name of the sheet
+ * @param {string} newname - The new name for the sheet
+ * @param {string} sheetid - The sheet ID
+ */
+SocialCalc.RenameWorkBookSheet = (workbook, oldname, newname, sheetid) => {
 
 	// for each sheet, fix up all the formula references
 	//
 	//alert (sheetid);
-	var oldsheet = SocialCalc.Formula.SheetCache.sheets[oldname].sheet;
+	const oldsheet = SocialCalc.Formula.SheetCache.sheets[oldname].sheet;
 	delete SocialCalc.Formula.SheetCache.sheets[oldname];
 	//alert (newname); // to check the newname
 	SocialCalc.Formula.SheetCache.sheets[newname] = {sheet: oldsheet, name: newname};
@@ -392,13 +609,14 @@ SocialCalc.RenameWorkBookSheet = function RenameWorkBookSheet(workbook, oldname,
 	// if formulas should not be fixed up upon sheet rename, then comment out the following
 	// block
 	//
-	for (var sheet in workbook.sheetArr) {
-		//alert("found sheet-"+sheet)
-		for (var cr in workbook.sheetArr[sheet].sheet.cells) { // update cell references to sheet name
+	for (const sheet of Object.keys(workbook.sheetArr)) {
+		//alert(`found sheet-${sheet}`);
+		const { cells } = workbook.sheetArr[sheet].sheet;
+		for (const cr of Object.keys(cells)) { // update cell references to sheet name
 			//alert(cr);
-			var cell = workbook.sheetArr[sheet].sheet.cells[cr];
+			const cell = cells[cr];
 			//if (cell) alert(cell.datatype)
-			if (cell && cell.datatype == "f") {
+			if (cell && cell.datatype === "f") {
 				cell.formula = SocialCalc.RenameWorkBookSheetCell(cell.formula, oldname, newname);
 				if (cell.parseinfo) {
 					delete cell.parseinfo;
@@ -410,11 +628,16 @@ SocialCalc.RenameWorkBookSheet = function RenameWorkBookSheet(workbook, oldname,
 	workbook.spreadsheet.ExecuteCommand('recalc', '');
 }
 
-SocialCalc.CopyWorkBookSheet = function CopyWorkBookSheet(workbook, sheetid) {
+/**
+ * Copies a workbook sheet to the clipboard
+ * @param {Object} workbook - The workbook instance
+ * @param {string} sheetid - The sheet ID to copy
+ */
+SocialCalc.CopyWorkBookSheet = (workbook, sheetid) => {
 
-	//alert("in copy "+sheetid);
+	//alert(`in copy ${sheetid}`);
     workbook.clipsheet.savestr = workbook.sheetArr[sheetid].sheet.CreateSheetSave();
-	//alert("in copy save="+workbook.clipsheet.savestr);
+	//alert(`in copy save=${workbook.clipsheet.savestr}`);
     workbook.clipsheet.copiedfrom = sheetid;
     workbook.clipsheet.editorprop = {};
     workbook.clipsheet.editorprop.ecell = workbook.spreadsheet.editor.ecell;
@@ -422,12 +645,18 @@ SocialCalc.CopyWorkBookSheet = function CopyWorkBookSheet(workbook, sheetid) {
 	//workbook.clipsheet.editorprop.range2 = workbook.spreadsheet.editor.range2;
 	//workbook.clipsheet.highlights = workbook.spreadsheet.context.highlights;
 	
-	//alert("copied "+sheetid);
+	//alert(`copied ${sheetid}`);
 }
 
-SocialCalc.PasteWorkBookSheet = function PasteWorkBookSheet(workbook, newsheetid, oldsheetid) {
+/**
+ * Pastes a workbook sheet from the clipboard
+ * @param {Object} workbook - The workbook instance
+ * @param {string} newsheetid - The new sheet ID
+ * @param {string} oldsheetid - The old sheet ID
+ */
+SocialCalc.PasteWorkBookSheet = (workbook, newsheetid, oldsheetid) => {
 	
-	//alert(newsheetid+oldsheetid);
+	//alert(`${newsheetid}${oldsheetid}`);
 	workbook.AddNewWorkBookSheet(newsheetid, oldsheetid, true);
 	
 	// clear the clip ?
@@ -435,9 +664,15 @@ SocialCalc.PasteWorkBookSheet = function PasteWorkBookSheet(workbook, newsheetid
 }
 
 
-SocialCalc.SheetNameExistsInWorkBook = function SheetNameExistsInWorkBook(workbook, name) {
-    for (var sheet in workbook.sheetArr) {    
-	if (workbook.sheetArr[sheet].sheet.sheetname == name) {
+/**
+ * Checks if a sheet name exists in the workbook
+ * @param {Object} workbook - The workbook instance
+ * @param {string} name - The sheet name to check
+ * @returns {string|null} The sheet ID if exists, null otherwise
+ */
+SocialCalc.SheetNameExistsInWorkBook = (workbook, name) => {
+    for (const sheet of Object.keys(workbook.sheetArr)) {    
+	if (workbook.sheetArr[sheet].sheet.sheetname === name) {
 	    return sheet;
 	}
     }
