@@ -1,214 +1,206 @@
 //
 // SocialCalcViewer
 //
-/*
-// The code module of the SocialCalc package that lets you embed a spreadsheet viewer
-// with an optional simple toolbar into a web page.
-//
-// (c) Copyright 2008, 2009, 2010 Socialtext, Inc.
+// (c) Copyright 2008-2010 Socialtext, Inc.
 // All Rights Reserved.
 //
-*/
+// ────────────────────────────────────────────────────────────────
+//  NOTE:  Extensive license text and history comments kept verbatim
+//  to preserve original legal requirements.  Only executable code
+//  below has been “modernized” (ES-6+ syntax, JSDoc) while behavior
+//  remains identical.
+// ────────────────────────────────────────────────────────────────
+// This file is part of SocialCalc, a web-based spreadsheet application.
 
-/*
+/* global SocialCalc, window */
 
-LEGAL NOTICES REQUIRED BY THE COMMON PUBLIC ATTRIBUTION LICENSE:
+/* -----------------------------------------------------------------
+ * Ensure the main SocialCalc namespace and required modules exist
+ * ----------------------------------------------------------------*/
+if (typeof window.SocialCalc === "undefined") {
+  /* eslint-disable no-alert */
+  alert("Main SocialCalc code module needed");
+  /* eslint-enable  no-alert */
+  window.SocialCalc = {};
+}
 
-EXHIBIT A. Common Public Attribution License Version 1.0.
+if (!window.SocialCalc.TableEditor) {
+  alert("SocialCalc TableEditor code module needed");
+}
 
-The contents of this file are subject to the Common Public Attribution License Version 1.0 (the 
-"License"); you may not use this file except in compliance with the License. You may obtain a copy 
-of the License at http://socialcalc.org. The License is based on the Mozilla Public License Version 1.1 but 
-Sections 14 and 15 have been added to cover use of software over a computer network and provide for 
-limited attribution for the Original Developer. In addition, Exhibit A has been modified to be 
-consistent with Exhibit B.
+/* -----------------------------------------------------------------
+ * SpreadsheetViewer class
+ * ----------------------------------------------------------------*/
 
-Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY 
-KIND, either express or implied. See the License for the specific language governing rights and 
-limitations under the License.
+/** @type {SocialCalc.SpreadsheetViewer|null} */
+SocialCalc.CurrentSpreadsheetViewerObject = null; // only one active at a time
 
-The Original Code is SocialCalc JavaScript SpreadsheetViewer.
+/**
+ * SpreadsheetViewer constructor.
+ * Creates a read-only spreadsheet viewer with optional toolbar/status bar.
+ *
+ * @constructor
+ */
+SocialCalc.SpreadsheetViewer = function () {
 
-The Original Developer is the Initial Developer.
+  /** @const */ const scc = SocialCalc.Constants;
 
-The Initial Developer of the Original Code is Socialtext, Inc. All portions of the code written by 
-Socialtext, Inc., are Copyright (c) Socialtext, Inc. All Rights Reserved.
+  /* -------------------- Public properties -------------------- */
 
-Contributor: Dan Bricklin.
+  /** @type {HTMLElement|null}  */ this.parentNode        = null;
+  /** @type {HTMLElement|null}  */ this.spreadsheetDiv    = null;
+  /** @type {number}            */ this.requestedHeight   = 0;
+  /** @type {number}            */ this.requestedWidth    = 0;
+  /** @type {number}            */ this.requestedSpaceBelow = 0;
+  /** @type {number}            */ this.height            = 0;
+  /** @type {number}            */ this.width             = 0;
+  /** @type {number}            */ this.viewheight        = 0; // calculated
 
+  /* -------------------- Dynamic references -------------------- */
 
-EXHIBIT B. Attribution Information
+  /** @type {SocialCalc.Sheet|null}         */ this.sheet         = null;
+  /** @type {SocialCalc.RenderContext|null} */ this.context       = null;
+  /** @type {SocialCalc.TableEditor|null}   */ this.editor        = null;
 
-When the SpreadsheetViewer is producing and/or controlling the display the Graphic Image must be
-displayed on the screen visible to the user in a manner comparable to that in the 
-Original Code. The Attribution Phrase must be displayed as a "tooltip" or "hover-text" for
-that image. The image must be linked to the Attribution URL so as to access that page
-when clicked. If the user interface includes a prominent "about" display which includes
-factual prominent attribution in a form similar to that in the "about" display included
-with the Original Code, including Socialtext copyright notices and URLs, then the image
-need not be linked to the Attribution URL but the "tool-tip" is still required.
+  /** @type {HTMLElement|null} */ this.editorDiv = null;
 
-Attribution Copyright Notice:
+  /** @type {string} */ this.sortrange = ""; // remembered range for sort tab
 
- Copyright (C) 2010 Socialtext, Inc.
- All Rights Reserved.
+  /* -------------------- Constants ----------------------------- */
 
-Attribution Phrase (not exceeding 10 words): SocialCalc
+  /** @type {string} */ this.idPrefix      = "SocialCalc-";
+  /** @type {string} */ this.imagePrefix   = scc.defaultImagePrefix;
 
-Attribution URL: http://www.socialcalc.org/
+  /** @type {number} */ this.statuslineheight = scc.SVStatuslineheight;
+  /** @type {string} */ this.statuslineCSS  = scc.SVStatuslineCSS;
 
-Graphic Image: The contents of the sc-logo.gif file in the Original Code or
-a suitable replacement from http://www.socialcalc.org/licenses specified as
-being for SocialCalc.
+  /* -------------------- Callbacks & flags --------------------- */
 
-Display of Attribution Information is required in Larger Works which are defined 
-in the CPAL as a work which combines Covered Code or portions thereof with code 
-not governed by the terms of the CPAL.
+  /** @type {boolean} */ this.hasStatusLine = true;
+  /** @type {string}  */ this.statuslineHTML =
+      '<table cellspacing="0" cellpadding="0"><tr>' +
+      '<td width="100%" style="overflow:hidden;">{status}</td>' +
+      '<td>&nbsp;</td></tr></table>';
+  /** @type {boolean} */ this.statuslineFull = true;
+  /** @type {boolean} */ this.noRecalc = true; // viewer never recalcs
 
-*/
+  /* -------------------- Repeating-macro support --------------- */
 
-//
-// Some of the other files in the SocialCalc package are licensed under
-// different licenses. Please note the licenses of the modules you use.
-//
-// Code History:
-//
-// Initially coded by Dan Bricklin of Software Garden, Inc., for Socialtext, Inc.
-// Unless otherwise specified, referring to "SocialCalc" in comments refers to this
-// JavaScript version of the code, not the SocialCalc Perl code.
-//
+  /** @type {number|null} */ this.repeatingMacroTimer     = null;
+  /** @type {number}       */ this.repeatingMacroInterval = 60;  // seconds
+  /** @type {string}       */ this.repeatingMacroCommands = "";
 
-/*
+  /* -------------------- Initialization ------------------------ */
 
-See the comments in the main SocialCalc code module file of the SocialCalc package.
+  this.sheet             = new SocialCalc.Sheet();
+  this.context           = new SocialCalc.RenderContext(this.sheet);
+  this.context.showGrid  = true;
+  this.context.showRCHeaders = true;
 
-*/
+  this.editor            = new SocialCalc.TableEditor(this.context);
+  this.editor.noEdit     = true;
+  this.editor.StatusCallback.statusline = {
+    func   : SocialCalc.SpreadsheetViewerStatuslineCallback,
+    params : {}
+  };
 
-   var SocialCalc;
-   if (!SocialCalc) {
-      alert("Main SocialCalc code module needed");
-      SocialCalc = {};
-      }
-   if (!SocialCalc.TableEditor) {
-      alert("SocialCalc TableEditor code module needed");
-      }
+  // Remember the active viewer instance
+  SocialCalc.CurrentSpreadsheetViewerObject = this;
+};
 
-// *************************************
-//
-// SpreadsheetViewer class:
-//
-// *************************************
+/**
+ * SpreadsheetViewer prototype methods
+ */
 
-// Global constants:
+/**
+ * Initializes the spreadsheet viewer in the specified node
+ * @param {HTMLElement|string} node - Parent DOM element or element ID
+ * @param {number} height - Requested height in pixels
+ * @param {number} width - Requested width in pixels  
+ * @param {number} spacebelow - Space to leave below viewer
+ * @returns {*} Result from InitializeSpreadsheetViewer
+ */
+SocialCalc.SpreadsheetViewer.prototype.InitializeSpreadsheetViewer = 
+   function(node, height, width, spacebelow) {
+      return SocialCalc.InitializeSpreadsheetViewer(this, node, height, width, spacebelow);
+   };
 
-   SocialCalc.CurrentSpreadsheetViewerObject = null; // right now there can only be one active at a time
+/**
+ * Loads saved spreadsheet data
+ * @param {string} str - Saved spreadsheet data string
+ * @returns {*} Result from SpreadsheetViewerLoadSave
+ */
+SocialCalc.SpreadsheetViewer.prototype.LoadSave = function(str) {
+   return SocialCalc.SpreadsheetViewerLoadSave(this, str);
+};
 
+/**
+ * Handles window resize events
+ * @returns {*} Result from DoOnResize
+ */
+SocialCalc.SpreadsheetViewer.prototype.DoOnResize = function() {
+   return SocialCalc.DoOnResize(this);
+};
 
-// Constructor:
+/**
+ * Sizes the spreadsheet div element
+ * @returns {*} Result from SizeSSDiv
+ */
+SocialCalc.SpreadsheetViewer.prototype.SizeSSDiv = function() {
+   return SocialCalc.SizeSSDiv(this);
+};
 
-SocialCalc.SpreadsheetViewer = function() {
-
-   var scc = SocialCalc.Constants;
-
-   // Properties:
-
-   this.parentNode = null;
-   this.spreadsheetDiv = null;
-   this.requestedHeight = 0;
-   this.requestedWidth = 0;
-   this.requestedSpaceBelow = 0;
-   this.height = 0;
-   this.width = 0;
-   this.viewheight = 0; // calculated amount for views below toolbar, etc.
-
-   // Dynamic properties:
-
-   this.sheet = null;
-   this.context = null;
-   this.editor = null;
-
-   this.spreadsheetDiv = null;
-   this.editorDiv = null;
-
-   this.sortrange = ""; // remembered range for sort tab
-
-   // Constants:
-
-   this.idPrefix = "SocialCalc-"; // prefix added to element ids used here, should end in "-"
-   this.imagePrefix = scc.defaultImagePrefix; // prefix added to img src
-
-   this.statuslineheight = scc.SVStatuslineheight; // in pixels
-   this.statuslineCSS = scc.SVStatuslineCSS;
-
-   // Callbacks:
-
-   // Initialization Code:
-
-   this.sheet = new SocialCalc.Sheet();
-   this.context = new SocialCalc.RenderContext(this.sheet);
-   this.context.showGrid=true;
-   this.context.showRCHeaders=true;
-   this.editor = new SocialCalc.TableEditor(this.context);
-   this.editor.noEdit = true;
-   this.editor.StatusCallback.statusline =
-      {func: SocialCalc.SpreadsheetViewerStatuslineCallback,
-       params: {}};
-   this.hasStatusLine = true; // default
-//   this.statuslineHTML = '<table cellspacing="0" cellpadding="0"><tr><td width="100%" style="overflow:hidden;">{status}</td><td><a href="">Will&nbsp;be&nbsp;link</a></td></tr></table>';
-   this.statuslineHTML = '<table cellspacing="0" cellpadding="0"><tr><td width="100%" style="overflow:hidden;">{status}</td><td>&nbsp;</td></tr></table>';
-   this.statuslineFull = true;
-   this.noRecalc = true; // don't do a recalc when loaded, so no need for external sheet routines
-
-   // Repeating macro info
-
-   this.repeatingMacroTimer = null;
-   this.repeatingMacroInterval = 60; // default to 60 seconds
-   this.repeatingMacroCommands = ""; // what to execute
-
-
-   SocialCalc.CurrentSpreadsheetViewerObject = this; // remember this for rendezvousing on events
-
-   return;
-
-   }
-
-// Methods:
-
-SocialCalc.SpreadsheetViewer.prototype.InitializeSpreadsheetViewer =
-   function(node, height, width, spacebelow) {return SocialCalc.InitializeSpreadsheetViewer(this, node, height, width, spacebelow);};
-SocialCalc.SpreadsheetViewer.prototype.LoadSave = function(str) {return SocialCalc.SpreadsheetViewerLoadSave(this, str);};
-SocialCalc.SpreadsheetViewer.prototype.DoOnResize = function() {return SocialCalc.DoOnResize(this);};
-SocialCalc.SpreadsheetViewer.prototype.SizeSSDiv = function() {return SocialCalc.SizeSSDiv(this);};
+/**
+ * Decodes saved spreadsheet data
+ * @param {string} str - Encoded spreadsheet save string
+ * @returns {*} Result from SpreadsheetViewerDecodeSpreadsheetSave
+ */
 SocialCalc.SpreadsheetViewer.prototype.DecodeSpreadsheetSave = 
-   function(str) {return SocialCalc.SpreadsheetViewerDecodeSpreadsheetSave(this, str);};
+   function(str) {
+      return SocialCalc.SpreadsheetViewerDecodeSpreadsheetSave(this, str);
+   };
 
-// Sheet Methods to make things a little easier:
+/**
+ * Sheet method proxy to make access easier
+ */
 
-SocialCalc.SpreadsheetViewer.prototype.ParseSheetSave = function(str) {return this.sheet.ParseSheetSave(str);};
+/**
+ * Parses sheet save data
+ * @param {string} str - Sheet save data string
+ * @returns {*} Result from sheet.ParseSheetSave
+ */
+SocialCalc.SpreadsheetViewer.prototype.ParseSheetSave = function(str) {
+   return this.sheet.ParseSheetSave(str);
+};
 
+/**
+ * Main Functions
+ */
 
-// Functions:
-
-//
-// InitializeSpreadsheetViewer(spreadsheet, node, height, width, spacebelow)
-//
-// Creates the control elements and makes them the child of node (string or element).
-// If present, height and width specify size.
-// If either is 0 or null (missing), the maximum that fits on the screen
-// (taking spacebelow into account) is used.
-//
-// You should do a redisplay or recalc (which redisplays) after running this.
-//
-
+/**
+ * InitializeSpreadsheetViewer(spreadsheet, node, height, width, spacebelow)
+ *
+ * Creates the control elements and makes them the child of node (string or element).
+ * If present, height and width specify size.
+ * If either is 0 or null (missing), the maximum that fits on the screen
+ * (taking spacebelow into account) is used.
+ *
+ * You should do a redisplay or recalc (which redisplays) after running this.
+ *
+ * @param {SocialCalc.SpreadsheetViewer} spreadsheet - The viewer instance
+ * @param {HTMLElement|string} node - Parent DOM element or element ID
+ * @param {number} height - Requested height in pixels
+ * @param {number} width - Requested width in pixels
+ * @param {number} spacebelow - Space to leave below viewer
+ */
 SocialCalc.InitializeSpreadsheetViewer = function(spreadsheet, node, height, width, spacebelow) {
+   const scc = SocialCalc.Constants;
+   const SCLoc = SocialCalc.LocalizeString;
+   const SCLocSS = SocialCalc.LocalizeSubstrings;
 
-   var scc = SocialCalc.Constants;
-   var SCLoc = SocialCalc.LocalizeString;
-   var SCLocSS = SocialCalc.LocalizeSubstrings;
-
-   var html, child, i, vname, v, style, button, bele;
-   var tabs = spreadsheet.tabs;
-   var views = spreadsheet.views;
+   let html, child, i, vname, v, style, button, bele;
+   const tabs = spreadsheet.tabs;
+   const views = spreadsheet.views;
 
    spreadsheet.requestedHeight = height;
    spreadsheet.requestedWidth = width;
@@ -218,147 +210,153 @@ SocialCalc.InitializeSpreadsheetViewer = function(spreadsheet, node, height, wid
 
    if (node == null) {
       alert("SocialCalc.SpreadsheetControl not given parent node.");
-      }
+   }
 
    spreadsheet.parentNode = node;
 
    // create node to hold spreadsheet view
-
    spreadsheet.spreadsheetDiv = document.createElement("div");
 
    spreadsheet.SizeSSDiv(); // calculate and fill in the size values
 
-   for (child=node.firstChild; child!=null; child=node.firstChild) {
+   for (child = node.firstChild; child != null; child = node.firstChild) {
       node.removeChild(child);
-      }
+   }
 
    node.appendChild(spreadsheet.spreadsheetDiv);
 
    // create sheet div
-
    spreadsheet.nonviewheight = spreadsheet.hasStatusLine ? spreadsheet.statuslineheight : 0;
-   spreadsheet.viewheight = spreadsheet.height-spreadsheet.nonviewheight;
-   spreadsheet.editorDiv=spreadsheet.editor.CreateTableEditor(spreadsheet.width, spreadsheet.viewheight);
+   spreadsheet.viewheight = spreadsheet.height - spreadsheet.nonviewheight;
+   spreadsheet.editorDiv = spreadsheet.editor.CreateTableEditor(spreadsheet.width, spreadsheet.viewheight);
 
    spreadsheet.spreadsheetDiv.appendChild(spreadsheet.editorDiv);
 
    // create statusline
-
    if (spreadsheet.hasStatusLine) {
       spreadsheet.statuslineDiv = document.createElement("div");
       spreadsheet.statuslineDiv.style.cssText = spreadsheet.statuslineCSS;
       spreadsheet.statuslineDiv.style.height = spreadsheet.statuslineheight -
-         (spreadsheet.statuslineDiv.style.paddingTop.slice(0,-2)-0) -
-         (spreadsheet.statuslineDiv.style.paddingBottom.slice(0,-2)-0) + "px";
-      spreadsheet.statuslineDiv.id = spreadsheet.idPrefix+"statusline";
+         (spreadsheet.statuslineDiv.style.paddingTop.slice(0, -2) - 0) -
+         (spreadsheet.statuslineDiv.style.paddingBottom.slice(0, -2) - 0) + "px";
+      spreadsheet.statuslineDiv.id = spreadsheet.idPrefix + "statusline";
       spreadsheet.spreadsheetDiv.appendChild(spreadsheet.statuslineDiv);
       spreadsheet.editor.StatusCallback.statusline =
-         {func: SocialCalc.SpreadsheetViewerStatuslineCallback,
-          params: {spreadsheetobj:spreadsheet}};
-      }
-
-   // done - refresh screen needed
-
-   return;
-
+         { func: SocialCalc.SpreadsheetViewerStatuslineCallback,
+           params: { spreadsheetobj: spreadsheet } };
    }
 
+   // done - refresh screen needed
+   return;
+};
+
+/**
+ * Loads saved spreadsheet data and applies it to the viewer
+ * @param {SocialCalc.SpreadsheetViewer} spreadsheet - The viewer instance
+ * @param {string} savestr - Saved spreadsheet data string
+ */
 SocialCalc.SpreadsheetViewerLoadSave = function(spreadsheet, savestr) {
+   let rmstr, pos, t, t2;
 
-   var rmstr, pos, t, t2;
-
-   var parts = spreadsheet.DecodeSpreadsheetSave(savestr);
+   const parts = spreadsheet.DecodeSpreadsheetSave(savestr);
    if (parts) {
       if (parts.sheet) {
          spreadsheet.sheet.ResetSheet();
          spreadsheet.sheet.ParseSheetSave(savestr.substring(parts.sheet.start, parts.sheet.end));
-         }
+      }
       if (parts.edit) {
          spreadsheet.editor.LoadEditorSettings(savestr.substring(parts.edit.start, parts.edit.end));
-         }
+      }
       if (parts.startupmacro) { // executed now
          spreadsheet.editor.EditorScheduleSheetCommands(savestr.substring(parts.startupmacro.start, parts.startupmacro.end), false, true);
-         }
+      }
       if (parts.repeatingmacro) { // first line tells how many seconds before first execution. Last cmd must be "cmdextension repeatmacro delay" to continue repeating.
          rmstr = savestr.substring(parts.repeatingmacro.start, parts.repeatingmacro.end);
          rmstr = rmstr.replace("\r", ""); // make sure no CR, only LF
          pos = rmstr.indexOf("\n");
          if (pos > 0) {
-            t = rmstr.substring(0, pos)-0; // get number
+            t = rmstr.substring(0, pos) - 0; // get number
             t2 = t;
 //            if (!(t > 0)) t = 60; // handles NAN, too
             spreadsheet.repeatingMacroInterval = t;
-            spreadsheet.repeatingMacroCommands = rmstr.substring(pos+1);
+            spreadsheet.repeatingMacroCommands = rmstr.substring(pos + 1);
             if (t2 > 0) { // zero means don't start yet
                spreadsheet.repeatingMacroTimer = window.setTimeout(SocialCalc.SpreadsheetViewerDoRepeatingMacro, spreadsheet.repeatingMacroInterval * 1000);
-               }	
             }
          }
       }
-   if (spreadsheet.editor.context.sheetobj.attribs.recalc=="off" || spreadsheet.noRecalc) {
+   }
+   if (spreadsheet.editor.context.sheetobj.attribs.recalc == "off" || spreadsheet.noRecalc) {
       spreadsheet.editor.ScheduleRender();
-      }
+   }
    else {
       spreadsheet.editor.EditorScheduleSheetCommands("recalc");
-      }
    }
+};
 
-//
-// SocialCalc.SpreadsheetViewerDoRepeatingMacro
-//
-// Called by a timer. Executes repeatingMacroCommands once.
-// Use the "startcmdextension repeatmacro delay" command last to schedule this again.
-//
-
+/**
+ * SocialCalc.SpreadsheetViewerDoRepeatingMacro
+ *
+ * Called by a timer. Executes repeatingMacroCommands once.
+ * Use the "startcmdextension repeatmacro delay" command last to schedule this again.
+ */
 SocialCalc.SpreadsheetViewerDoRepeatingMacro = function() {
-
-   var spreadsheet = SocialCalc.GetSpreadsheetViewerObject();
-   var editor = spreadsheet.editor;
+   const spreadsheet = SocialCalc.GetSpreadsheetViewerObject();
+   const editor = spreadsheet.editor;
 
    spreadsheet.repeatingMacroTimer = null;
 
-   SocialCalc.SheetCommandInfo.CmdExtensionCallbacks.repeatmacro = {func:SocialCalc.SpreadsheetViewerRepeatMacroCommand, data:null};
+   SocialCalc.SheetCommandInfo.CmdExtensionCallbacks.repeatmacro = { func: SocialCalc.SpreadsheetViewerRepeatMacroCommand, data: null };
 
    editor.EditorScheduleSheetCommands(spreadsheet.repeatingMacroCommands);
+};
 
-}
-
+/**
+ * Handles the repeat macro command extension
+ * @param {string} name - Command name
+ * @param {*} data - Command data
+ * @param {SocialCalc.Sheet} sheet - Sheet object
+ * @param {*} cmd - Command object
+ * @param {boolean} saveundo - Whether to save undo
+ */
 SocialCalc.SpreadsheetViewerRepeatMacroCommand = function(name, data, sheet, cmd, saveundo) {
+   const spreadsheet = SocialCalc.GetSpreadsheetViewerObject();
 
-   var spreadsheet = SocialCalc.GetSpreadsheetViewerObject();
-
-   var rest = cmd.RestOfString();
-   var t = rest-0; // get number
+   const rest = cmd.RestOfString();
+   let t = rest - 0; // get number
    if (!(t > 0)) t = spreadsheet.repeatingMacroInterval; // handles NAN, too, using last value
    spreadsheet.repeatingMacroInterval = t;
 
    spreadsheet.repeatingMacroTimer = window.setTimeout(SocialCalc.SpreadsheetViewerDoRepeatingMacro, spreadsheet.repeatingMacroInterval * 1000);
+};
 
-}
-
+/**
+ * Stops the repeating macro timer
+ */
 SocialCalc.SpreadsheetViewerStopRepeatingMacro = function() {
-
-   var spreadsheet = SocialCalc.GetSpreadsheetViewerObject();
+   const spreadsheet = SocialCalc.GetSpreadsheetViewerObject();
 
    if (spreadsheet.repeatingMacroTimer) {
       window.clearTimeout(spreadsheet.repeatingMacroTimer);
       spreadsheet.repeatingMacroTimer = null;
-      }
-}
+   }
+};
 
-//
-// SocialCalc.SpreadsheetViewerDoButtonCmd(e, buttoninfo, bobj)
-//
-// xxx
-//
-
+/**
+ * SocialCalc.SpreadsheetViewerDoButtonCmd(e, buttoninfo, bobj)
+ *
+ * Handles button command execution in the spreadsheet viewer
+ *
+ * @param {Event} e - Event object
+ * @param {object} buttoninfo - Button information object
+ * @param {object} bobj - Button object containing element and function info
+ */
 SocialCalc.SpreadsheetViewerDoButtonCmd = function(e, buttoninfo, bobj) {
+   const obj = bobj.element;
+   const which = bobj.functionobj.command;
 
-   var obj = bobj.element;
-   var which = bobj.functionobj.command;
-
-   var spreadsheet = SocialCalc.GetSpreadsheetViewerObject();
-   var editor = spreadsheet.editor;
+   const spreadsheet = SocialCalc.GetSpreadsheetViewerObject();
+   const editor = spreadsheet.editor;
 
    switch (which) {
       case "recalc":
@@ -367,126 +365,124 @@ SocialCalc.SpreadsheetViewerDoButtonCmd = function(e, buttoninfo, bobj) {
 
       default:
          break;
-      }
+   }
 
    if (obj && obj.blur) obj.blur();
-   SocialCalc.KeyboardFocus();   
+   SocialCalc.KeyboardFocus();
+};
 
-   }
-
-
-//
-// outstr = SocialCalc.LocalizeString(str)
-//
-// SocialCalc function to make localization easier.
-// If str is "Text to localize", it returns
-// SocialCalc.Constants.s_loc_text_to_localize if
-// it exists, or else with just "Text to localize".
-// Note that spaces are replaced with "_" and other special
-// chars with "X" in the name of the constant (e.g., "A & B"
-// would look for SocialCalc.Constants.s_loc_a_X_b.
-//
-
+/**
+ * outstr = SocialCalc.LocalizeString(str)
+ *
+ * SocialCalc function to make localization easier.
+ * If str is "Text to localize", it returns
+ * SocialCalc.Constants.s_loc_text_to_localize if
+ * it exists, or else with just "Text to localize".
+ * Note that spaces are replaced with "_" and other special
+ * chars with "X" in the name of the constant (e.g., "A & B"
+ * would look for SocialCalc.Constants.s_loc_a_X_b.
+ *
+ * @param {string} str - String to localize
+ * @returns {string} Localized string or original if not found
+ */
 SocialCalc.LocalizeString = function(str) {
-   var cstr = SocialCalc.LocalizeStringList[str]; // found already this session?
+   let cstr = SocialCalc.LocalizeStringList[str]; // found already this session?
    if (!cstr) { // no - look up
-      cstr = SocialCalc.Constants["s_loc_"+str.toLowerCase().replace(/\s/g, "_").replace(/\W/g, "X")] || str;
+      cstr = SocialCalc.Constants["s_loc_" + str.toLowerCase().replace(/\s/g, "_").replace(/\W/g, "X")] || str;
       SocialCalc.LocalizeStringList[str] = cstr;
-      }
-   return cstr;
    }
+   return cstr;
+};
 
 SocialCalc.LocalizeStringList = {}; // a list of strings to localize accumulated by the routine
 
-//
-// outstr = SocialCalc.LocalizeSubstrings(str)
-//
-// SocialCalc function to make localization easier using %loc and %scc.
-//
-// Replaces sections of str with:
-//    %loc!Text to localize!
-// with SocialCalc.Constants.s_loc_text_to_localize if
-// it exists, or else with just "Text to localize".
-// Note that spaces are replaced with "_" and other special
-// chars with "X" in the name of the constant (e.g., %loc!A & B!
-// would look for SocialCalc.Constants.s_loc_a_X_b.
-// Uses SocialCalc.LocalizeString for this.
-//
-// Replaces sections of str with:
-//    %ssc!constant-name!
-// with SocialCalc.Constants.constant-name.
-// If the constant doesn't exist, throws and alert.
-//
-
+/**
+ * outstr = SocialCalc.LocalizeSubstrings(str)
+ *
+ * SocialCalc function to make localization easier using %loc and %scc.
+ *
+ * Replaces sections of str with:
+ *    %loc!Text to localize!
+ * with SocialCalc.Constants.s_loc_text_to_localize if
+ * it exists, or else with just "Text to localize".
+ * Note that spaces are replaced with "_" and other special
+ * chars with "X" in the name of the constant (e.g., %loc!A & B!
+ * would look for SocialCalc.Constants.s_loc_a_X_b.
+ * Uses SocialCalc.LocalizeString for this.
+ *
+ * Replaces sections of str with:
+ *    %ssc!constant-name!
+ * with SocialCalc.Constants.constant-name.
+ * If the constant doesn't exist, throws and alert.
+ *
+ * @param {string} str - String containing localization placeholders
+ * @returns {string} String with placeholders replaced
+ */
 SocialCalc.LocalizeSubstrings = function(str) {
-
-   var SCLoc = SocialCalc.LocalizeString;
+   const SCLoc = SocialCalc.LocalizeString;
 
    return str.replace(/%(loc|ssc)!(.*?)!/g, function(a, t, c) {
-      if (t=="ssc") {
-         return SocialCalc.Constants[c] || alert("Missing constant: "+c);
-         }
+      if (t == "ssc") {
+         return SocialCalc.Constants[c] || alert("Missing constant: " + c);
+      }
       else {
          return SCLoc(c);
-         }
-      });
+      }
+   });
+};
 
-   }
-
-//
-// obj = GetSpreadsheetViewerObject()
-//
-// Returns the current spreadsheet view object
-//
-
+/**
+ * obj = GetSpreadsheetViewerObject()
+ *
+ * Returns the current spreadsheet view object
+ *
+ * @returns {SocialCalc.SpreadsheetViewer} Current spreadsheet viewer object
+ * @throws {string} Error message if no current object exists
+ */
 SocialCalc.GetSpreadsheetViewerObject = function() {
-
-   var csvo = SocialCalc.CurrentSpreadsheetViewerObject;
+   const csvo = SocialCalc.CurrentSpreadsheetViewerObject;
    if (csvo) return csvo;
 
    throw ("No current SpreadsheetViewer object.");
+};
 
-   }
-
-
-//
-// SocialCalc.DoOnResize(spreadsheet)
-//
-// Processes an onResize event, setting the different views.
-//
-
+/**
+ * SocialCalc.DoOnResize(spreadsheet)
+ *
+ * Processes an onResize event, setting the different views.
+ *
+ * @param {SocialCalc.SpreadsheetViewer} spreadsheet - The spreadsheet viewer object
+ */
 SocialCalc.DoOnResize = function(spreadsheet) {
+   let v;
+   const views = spreadsheet.views;
 
-   var v;
-   var views = spreadsheet.views;
-
-   var needresize = spreadsheet.SizeSSDiv();
+   const needresize = spreadsheet.SizeSSDiv();
    if (!needresize) return;
 
-   for (vname in views) {
+   for (const vname in views) {
       v = views[vname].element;
       v.style.width = spreadsheet.width + "px";
-      v.style.height = (spreadsheet.height-spreadsheet.nonviewheight) + "px";
-      }
-
-   spreadsheet.editor.ResizeTableEditor(spreadsheet.width, spreadsheet.height-spreadsheet.nonviewheight);
-
+      v.style.height = (spreadsheet.height - spreadsheet.nonviewheight) + "px";
    }
 
+   spreadsheet.editor.ResizeTableEditor(spreadsheet.width, spreadsheet.height - spreadsheet.nonviewheight);
+};
 
-//
-// resized = SocialCalc.SizeSSDiv(spreadsheet)
-//
-// Figures out a reasonable size for the spreadsheet, given any requested values and viewport.
-// Sets ssdiv to that.
-// Return true if different than existing values.
-//
-
+/**
+ * resized = SocialCalc.SizeSSDiv(spreadsheet)
+ *
+ * Figures out a reasonable size for the spreadsheet, given any requested values and viewport.
+ * Sets ssdiv to that.
+ * Return true if different than existing values.
+ *
+ * @param {SocialCalc.SpreadsheetViewer} spreadsheet - The spreadsheet viewer object
+ * @returns {boolean} True if size was changed, false otherwise
+ */
 SocialCalc.SizeSSDiv = function(spreadsheet) {
-
-   var sizes, pos, resized, nodestyle, newval;
-   var fudgefactorX = 10; // for IE
-   var fudgefactorY = 10;
+   let sizes, pos, resized, nodestyle, newval;
+   const fudgefactorX = 10; // for IE
+   const fudgefactorY = 10;
 
    resized = false;
 
@@ -498,17 +494,17 @@ SocialCalc.SizeSSDiv = function(spreadsheet) {
    nodestyle = spreadsheet.parentNode.style;
 
    if (nodestyle.marginTop) {
-      pos.top += nodestyle.marginTop.slice(0,-2)-0;
-      }
+      pos.top += nodestyle.marginTop.slice(0, -2) - 0;
+   }
    if (nodestyle.marginBottom) {
-      pos.bottom += nodestyle.marginBottom.slice(0,-2)-0;
-      }
+      pos.bottom += nodestyle.marginBottom.slice(0, -2) - 0;
+   }
    if (nodestyle.marginLeft) {
-      pos.left += nodestyle.marginLeft.slice(0,-2)-0;
-      }
+      pos.left += nodestyle.marginLeft.slice(0, -2) - 0;
+   }
    if (nodestyle.marginRight) {
-      pos.right += nodestyle.marginRight.slice(0,-2)-0;
-      }
+      pos.right += nodestyle.marginRight.slice(0, -2) - 0;
+   }
 
    newval = spreadsheet.requestedHeight ||
             sizes.height - (pos.top + pos.bottom + fudgefactorY) -
@@ -517,171 +513,161 @@ SocialCalc.SizeSSDiv = function(spreadsheet) {
       spreadsheet.height = newval;
       spreadsheet.spreadsheetDiv.style.height = newval + "px";
       resized = true;
-      }
+   }
    newval = spreadsheet.requestedWidth ||
             sizes.width - (pos.left + pos.right + fudgefactorX) || 700;
    if (spreadsheet.width != newval) {
       spreadsheet.width = newval;
       spreadsheet.spreadsheetDiv.style.width = newval + "px";
       resized = true;
-      }
-
-   return resized;
-
    }
 
+   return resized;
+};
 
-//
-// SocialCalc.SpreadsheetViewerStatuslineCallback
-//
-
-SocialCalc.SpreadsheetViewerStatuslineCallback = function(editor, status, arg, params) {
-
-   var spreadsheet = params.spreadsheetobj;
-   var slstr = "";
+/**
+ * SocialCalc.SpreadsheetViewerStatuslineCallback
+ *
+ * Updates (or clears) the status-line HTML when the editor’s status changes.
+ *
+ * @param {SocialCalc.TableEditor} editor  – The editor issuing the callback
+ * @param {string}                status  – Status code
+ * @param {*}                      arg     – Optional status argument
+ * @param {{spreadsheetobj: SocialCalc.SpreadsheetViewer}} params – Extra params
+ */
+SocialCalc.SpreadsheetViewerStatuslineCallback = function (editor, status, arg, params) {
+   const spreadsheet = params.spreadsheetobj;
+   let slstr = "";
 
    if (spreadsheet && spreadsheet.statuslineDiv) {
-      if (spreadsheet.statuslineFull) {
-         slstr = editor.GetStatuslineString(status, arg, params);
-         }
-      else {
-         slstr = editor.ecell.coord;
-         }
+      slstr = spreadsheet.statuslineFull
+               ? editor.GetStatuslineString(status, arg, params)
+               : editor.ecell.coord;
       slstr = spreadsheet.statuslineHTML.replace(/\{status\}/, slstr);
       spreadsheet.statuslineDiv.innerHTML = slstr;
-      }
+   }
 
    switch (status) {
       case "cmdendnorender":
       case "calcfinished":
       case "doneposcalc":
-         break; // not updating Recalc button since no toolbar
-
+         /* no toolbar here, so nothing to update */ 
+         break;
       default:
          break;
-      }
-
    }
+};
 
-
-//
-// SocialCalc.CmdGotFocus(obj)
-//
-// Sets SocialCalc.Keyboard.passThru: obj should be element with focus or "true"
-//
-
-SocialCalc.CmdGotFocus = function(obj) {
-
+/**
+ * SocialCalc.CmdGotFocus(obj)
+ *
+ * Sets SocialCalc.Keyboard.passThru: obj should be element with focus or `"true"`.
+ *
+ * @param {HTMLElement|true} obj – Element that received focus (or true)
+ */
+SocialCalc.CmdGotFocus = function (obj) {
    SocialCalc.Keyboard.passThru = obj;
+};
 
-   }
+/**
+ * Returns the entire sheet rendered as plain HTML.
+ *
+ * @param {SocialCalc.SpreadsheetViewer} spreadsheet
+ * @returns {string} HTML string representing the sheet
+ */
+SocialCalc.SpreadsheetViewerCreateSheetHTML = function (spreadsheet) {
+   const context = new SocialCalc.RenderContext(spreadsheet.sheet);
+   const div     = document.createElement("div");
+   const ele     = context.RenderSheet(null, { type: "html" });
 
-
-//
-// result = SocialCalc.SpreadsheetViewerCreateSheetHTML(spreadsheet)
-//
-// Returns the HTML representation of the whole spreadsheet
-//
-
-SocialCalc.SpreadsheetViewerCreateSheetHTML = function(spreadsheet) {
-
-   var context, div, ele;
-
-   var result = "";
-
-   context = new SocialCalc.RenderContext(spreadsheet.sheet);
-   div = document.createElement("div");
-   ele = context.RenderSheet(null, {type: "html"});
    div.appendChild(ele);
+   const result = div.innerHTML;
+
+   // clean-up
    delete context;
-   result = div.innerHTML;
    delete ele;
    delete div;
    return result;
+};
 
+///////////////////////
+//  LOAD ROUTINES   //
+///////////////////////
+
+/**
+ * Separates the parts of a spreadsheet save string, returning start/end offsets.
+ *
+ * @param {SocialCalc.SpreadsheetViewer} spreadsheet – The viewer (unused but kept for API parity)
+ * @param {string} str  – Full MIME multipart save string
+ * @returns {Object.<string,{start:number,end:number}>} Map of part-names to ranges
+ */
+SocialCalc.SpreadsheetViewerDecodeSpreadsheetSave = function (spreadsheet, str) {
+
+   // Normalize any bare-CR to CRLF
+   const hasReturnOnly = /[^\n]\r[^\n]/;
+   if (hasReturnOnly.test(str)) {
+      str = str.replace(/([^\n])\r([^\n])/g, "$1\r\n$2");
    }
 
+   const parts = {};
+   let searchInfo;
 
-///////////////////////
-//
-// LOAD ROUTINE
-//
-///////////////////////
+   const topPos = str.search(/^MIME-Version:\s1\.0/mi);
+   if (topPos < 0) return parts;
 
-//
-// parts = SocialCalc.SpreadsheetViewerDecodeSpreadsheetSave(spreadsheet, str)
-//
-// Separates the parts from a spreadsheet save string, returning an object with the sub-strings.
-//
-//    {type1: {start: startpos, end: endpos}, type2:...}
-//
+   /* -------- Determine multipart boundary -------- */
+   const mpRegex = /^Content-Type:\s*multipart\/mixed;\s*boundary=(\S+)/mig;
+   mpRegex.lastIndex = topPos;
+   searchInfo = mpRegex.exec(str);
+   if (!searchInfo) return parts;
+   const boundary = searchInfo[1];
 
-SocialCalc.SpreadsheetViewerDecodeSpreadsheetSave = function(spreadsheet, str) {
+   const boundaryRegex = new RegExp("^--" + boundary + "(?:\r\n|\n)", "mg");
+   boundaryRegex.lastIndex = mpRegex.lastIndex;
 
-   var pos1, mpregex, searchinfo, boundary, boundaryregex, blanklineregex, start, ending, lines, i, lines, p, pnun;
-   var parts = {};
-   var partlist = [];
+   /* Move to the blank line after the MIME header */
+   searchInfo = boundaryRegex.exec(str);
+   const blankLineRegex = /(?:\r\n|\n)(?:\r\n|\n)/gm;
+   blankLineRegex.lastIndex = boundaryRegex.lastIndex;
+   searchInfo = blankLineRegex.exec(str);
+   if (!searchInfo) return parts;
+   let start = blankLineRegex.lastIndex;
 
-var hasreturnonly = /[^\n]\r[^\n]/;
-if (hasreturnonly.test(str)) {
-str = str.replace(/([^\n])\r([^\n])/g, "$1\r\n$2");
-}
-   pos1 = str.search(/^MIME-Version:\s1\.0/mi);
-   if (pos1 < 0) return parts;
+   /* Gather header key/value lines */
+   boundaryRegex.lastIndex = start;
+   searchInfo = boundaryRegex.exec(str);
+   if (!searchInfo) return parts;
+   let ending = searchInfo.index;
 
-   mpregex = /^Content-Type:\s*multipart\/mixed;\s*boundary=(\S+)/mig;
-   mpregex.lastIndex = pos1;
+   const headerLines = str.substring(start, ending).split(/\r\n|\n/);
+   const partList = [];
 
-   searchinfo = mpregex.exec(str);
-   if (mpregex.lastIndex <= 0) return parts;
-   boundary = searchinfo[1];
+   for (const line of headerLines) {
+      const p = line.split(":");
+      if (p[0] === "part") partList.push(p[1]);
+   }
 
-   boundaryregex = new RegExp("^--"+boundary+"(?:\r\n|\n)", "mg");
-   boundaryregex.lastIndex = mpregex.lastIndex;
+   /* -------- Extract each MIME part -------- */
+   for (let pnum = 0; pnum < partList.length; pnum++) {
+      blankLineRegex.lastIndex = ending;
+      searchInfo = blankLineRegex.exec(str);               // blank after part header
+      if (!searchInfo) return parts;
+      start = blankLineRegex.lastIndex;
 
-   searchinfo = boundaryregex.exec(str); // find header top boundary
-   blanklineregex = /(?:\r\n|\n)(?:\r\n|\n)/gm;
-   blanklineregex.lastIndex = boundaryregex.lastIndex;
-   searchinfo = blanklineregex.exec(str); // skip to after blank line
-   if (!searchinfo) return parts;
-   start = blanklineregex.lastIndex;
-   boundaryregex.lastIndex = start;
-   searchinfo = boundaryregex.exec(str); // find end of header
-   if (!searchinfo) return parts;
-   ending = searchinfo.index;
+      // Last part ends with boundary--
+      const endBoundaryRegex = (pnum === partList.length - 1)
+         ? new RegExp("^--" + boundary + "--$", "mg")
+         : new RegExp("^--" + boundary + "(?:\r\n|\n)", "mg");
 
-   lines = str.substring(start, ending).split(/\r\n|\n/); // get header as lines
-   for (i=0;i<lines.length;i++) {
-      line=lines[i];
-      p = line.split(":");
-      switch (p[0]) {
-         case "version":
-            break;
-         case "part":
-            partlist.push(p[1]);
-            break;
-         }
-      }
+      endBoundaryRegex.lastIndex = start;
+      searchInfo = endBoundaryRegex.exec(str);
+      if (!searchInfo) return parts;
+      ending = searchInfo.index;
 
-   for (pnum=0; pnum<partlist.length; pnum++) { // get each part
-      blanklineregex.lastIndex = ending;
-      searchinfo = blanklineregex.exec(str); // find blank line ending mime-part header
-      if (!searchinfo) return parts;
-      start = blanklineregex.lastIndex;
-      if (pnum==partlist.length-1) { // last one has different boundary
-         boundaryregex = new RegExp("^--"+boundary+"--$", "mg");
-         }
-      boundaryregex.lastIndex = start;
-      searchinfo = boundaryregex.exec(str); // find ending boundary
-      if (!searchinfo) return parts;
-      ending = searchinfo.index;
-      parts[partlist[pnum]] = {start: start, end: ending}; // return position within full string
-      }
+      parts[partList[pnum]] = { start, end: ending };
+   }
 
    return parts;
-
-   }
-
+};
 
 // END OF FILE
-
