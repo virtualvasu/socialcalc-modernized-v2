@@ -4321,7 +4321,10 @@ SocialCalc.RenderSheet = function(context, oldtable, linkstyle) {
       if (parentnode) parentnode.replaceChild(tableobj, oldtable);
       }
 
-   SocialCalc.EvalUserScripts();
+   // Call EvalUserScripts if available (defined in workbook-control.js)
+   if (typeof SocialCalc.EvalUserScripts === 'function') {
+      SocialCalc.EvalUserScripts();
+   }
 
    return tableobj;
 
