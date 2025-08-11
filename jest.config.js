@@ -7,7 +7,7 @@ module.exports = {
   testEnvironment: 'jsdom',
 
   // Setup files
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+  // setupFilesAfterEnv: [],
 
   // Test file patterns
   testMatch: [
@@ -51,7 +51,7 @@ module.exports = {
   },
 
   // Module name mapping for path aliases
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@tests/(.*)$': '<rootDir>/tests/$1'
   },
