@@ -4,12 +4,10 @@
   "description": "Modernized SocialCalc/EtherCalc spreadsheet application with collaborative editing",
   "main": "src/js/core/socialcalc-engine.js",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:unit": "jest tests/unit",
-    "test:integration": "jest tests/integration",
-    "test:smoke": "jest tests/smoke"
+    "start": "python3 -m http.server 8080",
+    "serve": "python3 -m http.server 8080",
+    "backend": "python main.py",
+    "verify": "./verify-setup.sh"
   },
   "keywords": [
     "spreadsheet",
@@ -21,14 +19,6 @@
   "author": "SocialCalc/EtherCalc Team",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.23.0",
-    "@babel/preset-env": "^7.23.0",
-    "@babel/plugin-proposal-class-properties": "^7.18.0",
-    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
-    "@jest/globals": "^29.7.0",
-    "babel-jest": "^29.7.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "jsdom": "^22.1.0"
+    "http-server": "^14.1.1"
   }
 }
