@@ -47,7 +47,7 @@
 
 
 // Initialize SocialCalc namespace
-const SocialCalc = window.SocialCalc || (() => {
+let SocialCalc = window.SocialCalc || (() => {
     console.error('Main SocialCalc code module needed');
     return window.SocialCalc = {};
 })();
@@ -69,7 +69,7 @@ SocialCalc.HasTouch = (() => {
     }
     
     // Fallback: User agent detection for legacy devices
-    const agent = navigator.userAgent.toLowerCase();
+    let agent = navigator.userAgent.toLowerCase();
     return agent.includes('iphone') || 
            agent.includes('ipad') || 
            agent.includes('android');
@@ -153,7 +153,7 @@ SocialCalc.TouchRegister = (element, functionobj) => {
         return;
     }
 
-    const touchinfo = SocialCalc.TouchInfo;
+    let touchinfo = SocialCalc.TouchInfo;
 
     // Check if element is already registered
     if (SocialCalc.LookupElement(element, touchinfo.registeredElements)) {
@@ -188,8 +188,8 @@ SocialCalc.TouchRegister = (element, functionobj) => {
  * @returns {Object|null} Registered element object or null if not found
  */
 SocialCalc.FindTouchElement = (event) => {
-    const touchinfo = SocialCalc.TouchInfo;
-    const actualEvent = event || window.event;
+    let touchinfo = SocialCalc.TouchInfo;
+    let actualEvent = event || window.event;
     
     let ele = actualEvent.target || actualEvent.srcElement;
     let wobj = null;
@@ -211,11 +211,11 @@ SocialCalc.FindTouchElement = (event) => {
  * @param {TouchEvent} event - Touch start event
  */
 SocialCalc.ProcessTouchStart = (event) => {
-    const touchinfo = SocialCalc.TouchInfo;
+    let touchinfo = SocialCalc.TouchInfo;
     
     // Capture initial touch coordinates
     if (event.targetTouches && event.targetTouches.length > 0) {
-        const touch = event.targetTouches[0];
+        let touch = event.targetTouches[0];
         touchinfo.orig_coord_x = touch.pageX;
         touchinfo.orig_coord_y = touch.pageY;
         
@@ -242,16 +242,16 @@ SocialCalc.ProcessTouchStart = (event) => {
  * @returns {MouseEvent} Simulated mouse event
  */
 SocialCalc.TouchGetSimulatedMouseEvent = (event, mouseEventName) => {
-    const touches = event.changedTouches;
+    let touches = event.changedTouches;
     
     if (!touches || touches.length === 0) {
         throw new Error('No touch data available for mouse event simulation');
     }
     
-    const touch = touches[0];
+    let touch = touches[0];
     
     // Create and initialize mouse event with touch coordinates
-    const simulatedEvent = document.createEvent('MouseEvent');
+    let simulatedEvent = document.createEvent('MouseEvent');
     simulatedEvent.initMouseEvent(
         mouseEventName,    // event type
         true,              // bubbles
@@ -282,16 +282,16 @@ SocialCalc.TouchGetSimulatedMouseEvent = (event, mouseEventName) => {
  * @param {TouchEvent} event - Touch move event
  */
 SocialCalc.ProcessTouchMove = (event) => {
-    const touchinfo = SocialCalc.TouchInfo;
+    let touchinfo = SocialCalc.TouchInfo;
     
     // Update final coordinates with current touch position
     if (event.targetTouches && event.targetTouches.length > 0) {
-        const touch = event.targetTouches[0];
+        let touch = event.targetTouches[0];
         touchinfo.final_coord_x = touch.pageX;
         touchinfo.final_coord_y = touch.pageY;
     }
 
-    const wobj = SocialCalc.FindTouchElement(event);
+    let wobj = SocialCalc.FindTouchElement(event);
     if (!wobj) return; // Not one of our registered elements
 
     // Initialize movement tracking
@@ -299,13 +299,13 @@ SocialCalc.ProcessTouchMove = (event) => {
         touchinfo.move_start = Date.now();
         
         // Check if this is a delayed move (for range selection)
-        const moveDelay = touchinfo.move_start - touchinfo.touch_start;
+        let moveDelay = touchinfo.move_start - touchinfo.touch_start;
         if (moveDelay > touchinfo.ranging_threshold) {
             // Start range selection mode
             touchinfo.ranging = true;
             
             try {
-                const mouseDn = SocialCalc.TouchGetSimulatedMouseEvent(event, 'mousedown');
+                let mouseDn = SocialCalc.TouchGetSimulatedMouseEvent(event, 'mousedown');
                 if (wobj.functionobj?.editor?.fullgrid) {
                     wobj.functionobj.editor.fullgrid.dispatchEvent(mouseDn);
                 }
@@ -316,7 +316,7 @@ SocialCalc.ProcessTouchMove = (event) => {
     } else if (touchinfo.ranging) {
         // Continue range selection with mouse move simulation
         try {
-            const mouseMv = SocialCalc.TouchGetSimulatedMouseEvent(event, 'mousemove');
+            let mouseMv = SocialCalc.TouchGetSimulatedMouseEvent(event, 'mousemove');
             if (wobj.functionobj?.editor?.fullgrid) {
                 wobj.functionobj.editor.fullgrid.dispatchEvent(mouseMv);
             }
@@ -337,14 +337,14 @@ SocialCalc.ProcessTouchMove = (event) => {
  * @param {TouchEvent} e - Touch end event
  */
 SocialCalc.ProcessTouchEnd = (e) => {
-    const touchinfo = SocialCalc.TouchInfo;
-    const event = e || window.event;
+    let touchinfo = SocialCalc.TouchInfo;
+    let event = e || window.event;
 
     // Calculate movement distance
-    const changeX = touchinfo.orig_coord_x - touchinfo.final_coord_x;
-    const changeY = touchinfo.orig_coord_y - touchinfo.final_coord_y;
+    let changeX = touchinfo.orig_coord_x - touchinfo.final_coord_x;
+    let changeY = touchinfo.orig_coord_y - touchinfo.final_coord_y;
     
-    const wobj = SocialCalc.FindTouchElement(event);
+    let wobj = SocialCalc.FindTouchElement(event);
     if (!wobj) return; // Not one of our registered elements
 
     // Reset touch state
@@ -356,7 +356,7 @@ SocialCalc.ProcessTouchEnd = (e) => {
         touchinfo.ranging = false;
         
         try {
-            const mouseUp = SocialCalc.TouchGetSimulatedMouseEvent(event, 'mouseup');
+            let mouseUp = SocialCalc.TouchGetSimulatedMouseEvent(event, 'mouseup');
             if (wobj.functionobj?.editor?.fullgrid) {
                 wobj.functionobj.editor.fullgrid.dispatchEvent(mouseUp);
             }
@@ -367,8 +367,8 @@ SocialCalc.ProcessTouchEnd = (e) => {
     } else if (Math.abs(changeY) > touchinfo.threshold_y || 
                Math.abs(changeX) > touchinfo.threshold_x) {
         // Handle swipe gesture
-        const amount_y = Math.floor(changeY / touchinfo.px_to_rows);
-        const amount_x = Math.floor(changeX / touchinfo.px_to_cols);
+        let amount_y = Math.floor(changeY / touchinfo.px_to_rows);
+        let amount_x = Math.floor(changeX / touchinfo.px_to_cols);
         
         if (wobj.functionobj?.Swipe) {
             wobj.functionobj.Swipe(event, touchinfo, wobj, amount_y, amount_x);
@@ -376,9 +376,9 @@ SocialCalc.ProcessTouchEnd = (e) => {
         
     } else {
         // Handle tap gestures (single or double)
-        const now = Date.now();
-        const lastTouch = touchinfo.last_touch || (now + 1);
-        const delta = now - lastTouch;
+        let now = Date.now();
+        let lastTouch = touchinfo.last_touch || (now + 1);
+        let delta = now - lastTouch;
         
         // Clear any existing timeout
         if (touchinfo.timeout_handle) {
@@ -395,7 +395,7 @@ SocialCalc.ProcessTouchEnd = (e) => {
             // Single tap - use timeout to distinguish from potential double-tap
             touchinfo.last_touch = now;
             
-            const timeoutFn = () => {
+            let timeoutFn = () => {
                 if (wobj.functionobj?.SingleTap) {
                     wobj.functionobj.SingleTap(event, touchinfo, wobj);
                 }
@@ -419,14 +419,14 @@ SocialCalc.ProcessTouchEnd = (e) => {
  * @param {TouchEvent} event - Touch cancel event
  */
 SocialCalc.ProcessTouchCancel = (event) => {
-    const wobj = SocialCalc.FindTouchElement(event);
+    let wobj = SocialCalc.FindTouchElement(event);
 
     if (!wobj) {
         return; // Use default behavior
     } 
 
     // Reset all touch state
-    const touchinfo = SocialCalc.TouchInfo;
+    let touchinfo = SocialCalc.TouchInfo;
     Object.assign(touchinfo, {
         orig_coord_x: 0,
         orig_coord_y: 0,
@@ -478,10 +478,10 @@ SocialCalc.EditorProcessSingleTap = (event, touchinfo, wobj) => {
 
     try {
         // Simulate mouse click with mousedown and mouseup events
-        const mouseDn = SocialCalc.TouchGetSimulatedMouseEvent(event, "mousedown");
+        let mouseDn = SocialCalc.TouchGetSimulatedMouseEvent(event, "mousedown");
         wobj.functionobj.editor.fullgrid.dispatchEvent(mouseDn);
 
-        const mouseUp = SocialCalc.TouchGetSimulatedMouseEvent(event, "mouseup");
+        let mouseUp = SocialCalc.TouchGetSimulatedMouseEvent(event, "mouseup");
         wobj.functionobj.editor.fullgrid.dispatchEvent(mouseUp);
     } catch (error) {
         console.error('Error processing single tap:', error);
@@ -506,7 +506,7 @@ SocialCalc.EditorProcessDoubleTap = (event, touchinfo, wobj) => {
     
     try {
         // Simulate mouse double-click to enter edit mode
-        const mouseDblClick = SocialCalc.TouchGetSimulatedMouseEvent(event, "dblclick");
+        let mouseDblClick = SocialCalc.TouchGetSimulatedMouseEvent(event, "dblclick");
         wobj.functionobj.editor.fullgrid.dispatchEvent(mouseDblClick);
     } catch (error) {
         console.error('Error processing double tap:', error);
