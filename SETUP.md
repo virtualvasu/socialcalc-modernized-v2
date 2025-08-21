@@ -1,15 +1,92 @@
-# SocialCalc Setup & Testing Guide
+# SocialCalc Installation & Setup Guide
 
-## 🚀 Quick Start
+## 📋 Installation Prerequisites
 
-### Option 1: Simple HTTP Server (Recommended)
+### System Requirements
+- **Operating System:** Linux, macOS, or Windows
+- **Node.js:** Version 16+ (recommended: 18+)
+- **Python:** Version 3.8+ (recommended: 3.10+)
+- **Memory:** Minimum 4GB RAM (recommended: 8GB+)
+- **Storage:** At least 1GB free space
+
+## 🚀 Quick Installation
+
+```bash
+# 1. Install dependencies
+npm install
+pip install -r requirements-test.txt
+
+# 2. Verify everything works
+./verify-setup.sh
+
+# 3. Start testing
+python3 -m http.server 8080
+```
+
+## 🔧 Detailed Setup Steps
+
+### 1. Node.js and npm Setup
+```bash
+# Check current versions
+node --version    # Should be 16+
+npm --version     # Should be 8+
+
+# Install/update if needed
+# Visit: https://nodejs.org/
+
+# Install project dependencies
+npm install
+```
+
+### 2. Python Environment Setup
+```bash
+# Check Python version
+python3 --version    # Should be 3.8+
+
+# Create virtual environment (recommended)
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install Python dependencies
+pip install -r requirements-test.txt
+```
+
+### 3. Project Verification
+```bash
+# Run comprehensive verification
+chmod +x verify-setup.sh
+./verify-setup.sh
+```
+
+> **For detailed verification procedures, see [SETUP-VERIFICATION.md](SETUP-VERIFICATION.md)**
+
+### 4. Start Development Server
+
+```bash
+# Simple HTTP server for testing
+python3 -m http.server 8080
+
+# Or with live reload (if you have it)
+npx live-server --port=8080
+```
+
+### 5. Open Test Pages
+Navigate to:
+- http://localhost:8080/src/html/test-workbook.html
+- http://localhost:8080/src/html/test-graph.html
+- http://localhost:8080/src/html/test-highcharts.html
+
+> **For detailed testing procedures, see [SETUP-VERIFICATION.md](SETUP-VERIFICATION.md)**
+
+## 🚀 Alternative Setup Methods
+
+### Option 1: Python HTTP Server (Recommended)
 
 The easiest way to run SocialCalc is with a local HTTP server due to CORS restrictions with file:// URLs.
 
-#### Using Python (if you have Python installed):
 ```bash
 # Navigate to the project root
-cd /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt
+cd socialcalc-modernized-v2
 
 # Python 3 (most common)
 python3 -m http.server 8080
@@ -18,30 +95,99 @@ python3 -m http.server 8080
 python -m SimpleHTTPServer 8080
 ```
 
-#### Using Node.js (if you have Node.js):
+### Option 2: Node.js HTTP Server
 ```bash
 # Install a simple server globally
 npm install -g http-server
 
 # Navigate to project root and start
-cd /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt
+cd socialcalc-modernized-v2
 http-server -p 8080
 ```
 
-#### Using PHP (if you have PHP):
+### Option 3: PHP HTTP Server
 ```bash
-cd /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt
+cd socialcalc-modernized-v2
 php -S localhost:8080
 ```
 
-### Option 2: Direct File Access (Limited)
+### Option 4: Direct File Access (Limited)
 
 You can try opening files directly in your browser, but some features may not work due to CORS restrictions:
 
 ```bash
 # Open any of these files directly in your browser:
-file:///home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/src/html/test-workbook.html
-file:///home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/src/html/test-graph.html
+file:///path/to/socialcalc-modernized-v2/src/html/test-workbook.html
+file:///path/to/socialcalc-modernized-v2/src/html/test-graph.html
+```
+
+## 🔧 Common Issues and Solutions
+
+### Port 8080 Already in Use
+```bash
+# Find what's using the port
+lsof -i :8080
+
+# Use a different port
+python3 -m http.server 8081
+```
+
+### Permission Denied on verify-setup.sh
+```bash
+# Make script executable
+chmod +x verify-setup.sh
+```
+
+### Node.js/npm Version Issues
+```bash
+# Update Node.js from nodejs.org
+# Or use nvm (Node Version Manager)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm install node
+nvm use node
+```
+
+### Python Module Import Errors
+```bash
+# Ensure virtual environment is activated
+source venv/bin/activate
+
+# Reinstall dependencies
+pip install -r requirements-test.txt
+```
+
+### Browser Compatibility Issues
+- Use modern browsers: Chrome 60+, Firefox 55+, Safari 12+
+- Enable JavaScript
+- Check browser console (F12) for specific errors
+- Try incognito/private mode to rule out extensions
+
+## 💻 Development Workflow
+
+### Daily Development
+```bash
+# 1. Activate environment
+source venv/bin/activate
+
+# 2. Quick health check
+./verify-setup.sh
+
+# 3. Start development server
+python3 -m http.server 8080
+```
+
+### Before Committing Code
+```bash
+# Complete verification
+./verify-setup.sh
+python -m pytest tests/backend/ -v
+```
+
+### Production Deployment
+```bash
+# Full verification with coverage
+./verify-setup.sh
+python -m pytest tests/backend/ --cov=main
 ```
 
 ## 🧪 Testing the Application
@@ -53,131 +199,17 @@ Once your server is running, visit: `http://localhost:8080/src/html/`
 #### 1. **Multi-Sheet Workbook Test**
 **URL:** `http://localhost:8080/src/html/test-workbook.html`
 - **Tests:** Multi-sheet functionality, workbook controls
-- **Features:** Create sheets, switch between tabs, basic spreadsheet operations
 
 #### 2. **Graphing & Charts Test** 
 **URL:** `http://localhost:8080/src/html/test-graph.html`
 - **Tests:** Charting and graphing capabilities
-- **Features:** Data visualization, graph types, chart controls
 
 #### 3. **Highcharts Integration**
 **URL:** `http://localhost:8080/src/html/test-highcharts.html`
 - **Tests:** Advanced charting with Highcharts library
-- **Features:** Professional charts, export options
 
 #### 4. **Sparklines Test**
 **URL:** `http://localhost:8080/src/html/test-sparklines.html`
 - **Tests:** Small inline charts (sparklines)
-- **Features:** Compact data visualization
 
-## 🔧 What to Test
-
-### Basic Functionality:
-1. **Cell Editing:**
-   - Click on any cell
-   - Enter numbers, text, or formulas (e.g., `=A1+B1`)
-   - Press Enter to confirm
-
-2. **Navigation:**
-   - Use arrow keys to move between cells
-   - Click and drag to select ranges
-   - Use mouse wheel to scroll
-
-3. **Formulas:**
-   - Try: `=SUM(A1:A10)`
-   - Try: `=AVERAGE(B1:B5)`  
-   - Try: `=A1*B1+C1`
-
-4. **Multi-Sheet (test-workbook.html):**
-   - Look for sheet tabs at the bottom
-   - Click to switch between sheets
-   - Right-click for sheet options
-
-5. **Graphing (test-graph.html):**
-   - Enter data in cells
-   - Select a range
-   - Use graph controls to create charts
-
-## 🐛 Common Issues & Solutions
-
-### Issue: "Failed to load resource" or CORS errors
-**Solution:** Use HTTP server instead of opening files directly
-
-### Issue: jQuery or other scripts not loading
-**Solution:** Check internet connection (jQuery loads from CDN)
-
-### Issue: Blank page or no interface
-**Solution:** Open browser developer tools (F12) to check for JavaScript errors
-
-### Issue: Features not working
-**Solution:** This is expected - not all JavaScript files have been fully modernized yet
-
-## 🎯 Expected Behavior
-
-### What Should Work:
-✅ **Basic spreadsheet interface loads**  
-✅ **Cell selection and navigation**  
-✅ **Modern HTML5 layout and styling**  
-✅ **Console shows modern JavaScript (no eval warnings)**  
-✅ **DOM event handlers work properly**  
-✅ **Responsive layout on mobile**
-
-### What Might Not Work Yet:
-⚠️ **Complex formulas** (formula-parser.js not fully modernized)  
-⚠️ **Some UI interactions** (UI components partially modernized)  
-⚠️ **Advanced features** (remaining components need modernization)  
-⚠️ **Real-time collaboration** (needs server backend)
-
-## 🔍 Debugging Tips
-
-### Open Browser Developer Tools (F12):
-1. **Console Tab:** Check for JavaScript errors
-2. **Network Tab:** Verify all files are loading
-3. **Elements Tab:** Inspect the modern HTML5 structure
-4. **Sources Tab:** Browse the organized file structure
-
-### Check Modern Features:
-- Look for ES6+ syntax in loaded JavaScript files
-- Verify HTML5 semantic elements (`<main>`, `<section>`)
-- Confirm ARIA attributes for accessibility
-- Check that jQuery 3.6.0 is loaded (not 1.3)
-
-## 📱 Mobile Testing
-
-The modernized HTML includes responsive design:
-- Open on mobile browser
-- Check viewport scaling
-- Test touch interactions (if touch-interface.js is working)
-
-## 🔗 File Structure for Testing
-
-```
-Your Server Root: /home/virtu/c4gt/c4gt-20250728T155154Z-1-001/c4gt/
-├── src/html/          ← Test files are here
-│   ├── test-workbook.html    ← Multi-sheet test
-│   ├── test-graph.html       ← Graphing test  
-│   ├── test-highcharts.html  ← Advanced charts
-│   └── test-sparklines.html  ← Mini charts
-├── src/js/            ← Modernized JavaScript
-├── src/css/           ← Stylesheets
-└── lib/vendor/        ← Third-party libraries
-```
-
-## 🏆 Success Indicators
-
-You'll know the modernization is working when you see:
-- ✅ Clean, modern HTML5 page layout
-- ✅ No JavaScript eval() warnings in console
-- ✅ Proper error handling and logging
-- ✅ Mobile-responsive interface
-- ✅ Modern developer tools integration
-
-## 🆘 Need Help?
-
-If you encounter issues:
-1. Check the browser console for errors
-2. Verify you're using an HTTP server (not file://)
-3. Ensure internet connection for CDN resources
-4. Try different browsers (Chrome, Firefox, Safari)
-
-Happy testing! 🎉
+> **For complete testing procedures and verification, see [SETUP-VERIFICATION.md](SETUP-VERIFICATION.md)**
