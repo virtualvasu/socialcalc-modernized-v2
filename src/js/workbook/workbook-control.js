@@ -1158,9 +1158,9 @@ SocialCalc.WorkBookControlRenameSheetSubmit = function () {
     const normalizedNewName = newName.toLowerCase(); // Converting to lower case to normalize
     // console.log(normalizedNewName + " old " + inputElement.value);
 
-    for (const sheetKey in workbook.sheetArr) {
-        console.log(workbook.sheetArr[sheetKey].sheet.sheetname); // Checking in sheetArr for repeated names
-        if (workbook.sheetArr[sheetKey].sheet.sheetname === normalizedNewName) {
+    for (const sheetKey in control.workbook.sheetArr) {
+        console.log(control.workbook.sheetArr[sheetKey].sheet.sheetname); // Checking in sheetArr for repeated names
+        if (control.workbook.sheetArr[sheetKey].sheet.sheetname === normalizedNewName) {
             alert(`${newName} already exists`);
             return;
         }

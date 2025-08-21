@@ -47,7 +47,7 @@
 
 
 // Initialize SocialCalc namespace
-let SocialCalc = window.SocialCalc || (() => {
+var SocialCalc = window.SocialCalc || (() => {
     console.error('Main SocialCalc code module needed');
     return window.SocialCalc = {};
 })();
