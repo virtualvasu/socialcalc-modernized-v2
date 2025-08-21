@@ -16,6 +16,10 @@
     <script src="../js/ui/popup-manager.js"></script>
     <script src="../js/ui/spreadsheet-control.js"></script>
     
+    <!-- SocialCalc Workbook Components -->
+    <script src="../js/workbook/workbook.js"></script>
+    <script src="../js/workbook/workbook-control.js"></script>
+    
     <!-- SocialCalc Visualization -->
     <script src="../js/visualization/graph-manager.js"></script>
     
@@ -48,10 +52,12 @@
             // Ensure objects exist before setting properties
             if (!SocialCalc.Constants) SocialCalc.Constants = {};
             if (!SocialCalc.Popup) SocialCalc.Popup = {};
+            if (!SocialCalc.Callbacks) SocialCalc.Callbacks = {};
             
             // Configure SocialCalc callbacks
             SocialCalc.EvalUserScripts = () => {};
             SocialCalc.CallOutOnRenderCell = () => {};
+            SocialCalc.Callbacks.broadcast = (a, b) => {};
 
             // Set correct image paths
             if (SocialCalc.Constants) {
