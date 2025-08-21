@@ -361,8 +361,8 @@ function GraphVerticalBar(spreadsheet, range, gview, gtype, helpflag) {
     const canv = document.getElementById("myBarCanvas");
     const ctx = canv.getContext('2d');
     
-    // Note: mozTextStyle is deprecated but kept for compatibility
-    ctx.mozTextStyle = "10pt bold Arial";
+    // Set font using modern property
+    ctx.font = "bold 10pt Arial";
     
     const canvasMaxHeight = canv.height - 60;
     const canvasTotalWidth = canv.width;
@@ -407,22 +407,22 @@ function GraphVerticalBar(spreadsheet, range, gview, gtype, helpflag) {
     ctx.fillStyle = "#000000";
     
     if (values[0] > 0) {
-        ctx.translate(5, zeroLine + 22);
+        ctx.fillText(labels[0], 5, zeroLine + 22);
     } else {
-        ctx.translate(5, zeroLine - 15);
+        ctx.fillText(labels[0], 5, zeroLine - 15);
     }
     
-    ctx.mozDrawText(labels[0]);
+    let currentX = 5;
+    let currentY = values[0] > 0 ? zeroLine + 22 : zeroLine - 15;
     
     for (let i = 1; i < values.length; i++) {
+        currentX += eachwidth;
         if ((values[i] > 0) && (values[i - 1] < 0)) {
-            ctx.translate(eachwidth, 37);
+            currentY += 37;
         } else if ((values[i] < 0) && (values[i - 1] > 0)) {
-            ctx.translate(eachwidth, -37);
-        } else {
-            ctx.translate(eachwidth, 0);
+            currentY -= 37;
         }
-        ctx.mozDrawText(labels[i]);
+        ctx.fillText(labels[i], currentX, currentY);
     }
     
     // Generate Google Charts API URL
@@ -515,8 +515,8 @@ function GraphHorizontalBar(spreadsheet, range, gview, gtype, helpflag) {
     const canv = document.getElementById("myBarCanvas");
     const ctx = canv.getContext('2d');
     
-    // Note: mozTextStyle is deprecated but kept for compatibility
-    ctx.mozTextStyle = "10pt bold Arial";
+    // Set font using modern property
+    ctx.font = "bold 10pt Arial";
     
     const canvasMaxHeight = canv.height - 60;
     const canvasTotalWidth = canv.width;
@@ -562,22 +562,22 @@ function GraphHorizontalBar(spreadsheet, range, gview, gtype, helpflag) {
     ctx.fillStyle = "#000000";
     
     if (values[0] > 0) {
-        ctx.translate(zeroLine - 22, 45);
+        ctx.fillText(labels[0], zeroLine - 22, 45);
     } else {
-        ctx.translate(zeroLine + 15, 45);
+        ctx.fillText(labels[0], zeroLine + 15, 45);
     }
     
-    ctx.mozDrawText(labels[0]);
+    let currentX = values[0] > 0 ? zeroLine - 22 : zeroLine + 15;
+    let currentY = 45;
     
     for (let i = 1; i < values.length; i++) {
+        currentY += eachwidth;
         if ((values[i] > 0) && (values[i - 1] < 0)) {
-            ctx.translate(-37, eachwidth);
+            currentX -= 37;
         } else if ((values[i] < 0) && (values[i - 1] > 0)) {
-            ctx.translate(37, eachwidth);
-        } else {
-            ctx.translate(0, eachwidth);
+            currentX += 37;
         }
-        ctx.mozDrawText(labels[i]);
+        ctx.fillText(labels[i], currentX, currentY);
     }
     
     // Generate Google Charts API URL
@@ -643,8 +643,8 @@ function MakePieChart(spreadsheet, range, gview, gtype, helpflag) {
     const canv = document.getElementById("myCanvas");
     const ctx = canv.getContext('2d');
     
-    // Note: mozTextStyle is deprecated but kept for compatibility
-    ctx.mozTextStyle = "10pt Arial";
+    // Set font using modern property
+    ctx.font = "10pt Arial";
     
     const centerX = canv.width / 2;
     const centerY = canv.height / 2;
@@ -692,19 +692,11 @@ function MakePieChart(spreadsheet, range, gview, gtype, helpflag) {
             leftBias = 55;
         }
         
-        ctx.translate(
-            centerX + Math.cos(centralRad) * textRad - leftBias, 
-            centerY + Math.sin(centralRad) * textRad
-        );
+        const textX = centerX + Math.cos(centralRad) * textRad - leftBias;
+        const textY = centerY + Math.sin(centralRad) * textRad;
         
-        // Note: mozDrawText is deprecated but needed for compatibility
-        ctx.mozDrawText(`${labels[i]} (${Math.round(values[i] / total * 100)}%)`);
-        
-        // Reset translation to continue drawing
-        ctx.translate(
-            -1 * centerX - Math.cos(centralRad) * textRad + leftBias,
-            -1 * centerY - Math.sin(centralRad) * textRad
-        );
+        // Use modern fillText instead of deprecated mozDrawText
+        ctx.fillText(`${labels[i]} (${Math.round(values[i] / total * 100)}%)`, textX, textY);
         
         ctx.fillRect(1, 1, 1, 1);
         ctx.closePath();

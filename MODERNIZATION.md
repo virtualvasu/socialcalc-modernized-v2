@@ -245,6 +245,13 @@ const updater = {
 - Improved variable declarations and error handling
 - Enhanced readability with modern JavaScript patterns
 
+#### 4. **visualization/graph-manager.js** - Canvas API Modernization
+- **Removed deprecated Firefox-specific methods:**
+  - `ctx.mozDrawText()` → `ctx.fillText(x, y, text)` (standard Canvas 2D API)
+  - `ctx.mozTextStyle` → `ctx.font` (modern font property)
+- **Cross-browser compatibility:** All chart types (bar, pie, line) now use standard APIs
+- **Preserved functionality:** Visual output unchanged, improved browser support
+
 **Key Changes Applied Across All Files:**
 - ✅ Replaced `var` with `const/let` declarations
 - ✅ Converted function expressions to arrow functions where appropriate
