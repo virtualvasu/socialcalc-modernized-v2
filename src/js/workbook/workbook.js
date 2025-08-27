@@ -5,6 +5,7 @@
 //
 // Author: Ramu Ramamurthy
 //
+// Refactored to ES6+ standards by Vasu Garg, 2025 (GitHub: @virtualvasu)
 //
 
 if (!window.SocialCalc) {

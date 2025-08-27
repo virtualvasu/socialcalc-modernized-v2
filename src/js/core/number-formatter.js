@@ -13,6 +13,7 @@
  *    Portions (c) Copyright 2005, 2006, 2007 Software Garden, Inc.
  *    Portions (c) Copyright 2007 Socialtext, Inc.
  * The Perl SocialCalc started as modifications to the wikiCalc(R) program, version 1.0.
+ * Refactored to ES6+ standards by Vasu Garg, 2025 (GitHub: @virtualvasu)
  * wikiCalc 1.0 was written by Software Garden, Inc.
  */
 

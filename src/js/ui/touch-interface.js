@@ -16,6 +16,7 @@
  */
 
 //
+// Refactored to ES6+ standards by Vasu Garg, 2025 (GitHub: @virtualvasu)
 //
 // To initialize, SocialCalc.CreateTableEditor must call 
 //    SocialCalc.TouchRegister(editor.toplevel, {Swipe: SocialCalc.EditorProcessSwipe, editor: editor});

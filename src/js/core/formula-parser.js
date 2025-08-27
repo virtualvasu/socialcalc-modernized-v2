@@ -21,6 +21,7 @@
  * wikiCalc 1.0 was written by Software Garden, Inc.
  * Unless otherwise specified, referring to "SocialCalc" in comments refers to this
  * JavaScript version of the code, not the SocialCalc Perl code.
+ * Refactored to ES6+ standards by Vasu Garg, 2025 (GitHub: @virtualvasu)
  */
 
 if (typeof SocialCalc === 'undefined') {

@@ -70,6 +70,8 @@
  * Unless otherwise specified, referring to "SocialCalc" in comments refers to this
  * JavaScript version of the code, not the SocialCalc Perl code.
  * 
+ * Refactored to ES6+ standards by Vasu Garg, 2025 (GitHub: @virtualvasu)
+ * 
  * See the comments in the main SocialCalc code module file of the SocialCalc package.
  */
 

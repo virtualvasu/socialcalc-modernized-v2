@@ -5,6 +5,10 @@
  */
 
 /**
+ * Refactored to ES6+ standards by Vasu Garg, 2025 (GitHub: @virtualvasu)
+ */
+
+/**
  * @namespace SocialCalc
  */
 var SocialCalc;
