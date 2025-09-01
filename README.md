@@ -1,5 +1,9 @@
 # SocialCalc/EtherCalc Modernization Project
 
+## 🏗️ Source Architecture Overview
+
+![SocialCalc Source Architecture](./svgviewer-png-output.png)
+
 ## Overview
 
 This project represents a comprehensive modernization of the SocialCalc/EtherCalc codebase, transforming legacy JavaScript and HTML code into modern, maintainable standards while preserving all existing functionality.

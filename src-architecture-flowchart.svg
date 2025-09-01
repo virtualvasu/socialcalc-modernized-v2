@@ -1,0 +1,170 @@
+<svg width="1000" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #2c3e50; }
+      .folder { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #34495e; }
+      .file { font-family: Arial, sans-serif; font-size: 11px; fill: #7f8c8d; }
+      .description { font-family: Arial, sans-serif; font-size: 10px; fill: #95a5a6; }
+      .folder-box { fill: #ecf0f1; stroke: #34495e; stroke-width: 2; }
+      .subfolder-box { fill: #d5dbdb; stroke: #34495e; stroke-width: 1.5; }
+      .file-box { fill: #f8f9fa; stroke: #7f8c8d; stroke-width: 1; }
+      .arrow { stroke: #3498db; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .core-color { fill: #e74c3c; }
+      .ui-color { fill: #3498db; }
+      .network-color { fill: #f39c12; }
+      .viz-color { fill: #9b59b6; }
+      .workbook-color { fill: #27ae60; }
+      .assets-color { fill: #34495e; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3498db" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="500" y="30" text-anchor="middle" class="title">SocialCalc Modernized - Source Architecture</text>
+
+  <!-- Main src folder -->
+  <rect x="420" y="60" width="160" height="50" class="folder-box" rx="5"/>
+  <text x="500" y="80" text-anchor="middle" class="folder">src/</text>
+  <text x="500" y="95" text-anchor="middle" class="description">Main source directory</text>
+
+  <!-- Core Layer -->
+  <rect x="50" y="150" width="200" height="120" class="subfolder-box core-color" rx="5"/>
+  <text x="150" y="170" text-anchor="middle" class="folder">js/core/</text>
+  <text x="150" y="185" text-anchor="middle" class="description">Spreadsheet Engine & Logic</text>
+  
+  <rect x="60" y="195" width="180" height="15" class="file-box"/>
+  <text x="70" y="205" class="file">• constants.js - Configuration & strings</text>
+  <rect x="60" y="215" width="180" height="15" class="file-box"/>
+  <text x="70" y="225" class="file">• socialcalc-engine.js - Core engine</text>
+  <rect x="60" y="235" width="180" height="15" class="file-box"/>
+  <text x="70" y="245" class="file">• formula-parser.js - Formula processing</text>
+  <rect x="60" y="255" width="180" height="15" class="file-box"/>
+  <text x="70" y="265" class="file">• number-formatter.js - Number display</text>
+
+  <!-- UI Layer -->
+  <rect x="280" y="150" width="200" height="140" class="subfolder-box ui-color" rx="5"/>
+  <text x="380" y="170" text-anchor="middle" class="folder">js/ui/</text>
+  <text x="380" y="185" text-anchor="middle" class="description">User Interface Components</text>
+  
+  <rect x="290" y="195" width="180" height="15" class="file-box"/>
+  <text x="300" y="205" class="file">• table-editor.js - Main spreadsheet UI</text>
+  <rect x="290" y="215" width="180" height="15" class="file-box"/>
+  <text x="300" y="225" class="file">• spreadsheet-control.js - Controls</text>
+  <rect x="290" y="235" width="180" height="15" class="file-box"/>
+  <text x="300" y="245" class="file">• popup-manager.js - Dialog management</text>
+  <rect x="290" y="255" width="180" height="15" class="file-box"/>
+  <text x="300" y="265" class="file">• touch-interface.js - Mobile support</text>
+  <rect x="290" y="275" width="180" height="15" class="file-box"/>
+  <text x="300" y="285" class="file">• viewer.js - Read-only display</text>
+
+  <!-- Network Layer -->
+  <rect x="510" y="150" width="150" height="80" class="subfolder-box network-color" rx="5"/>
+  <text x="585" y="170" text-anchor="middle" class="folder">js/network/</text>
+  <text x="585" y="185" text-anchor="middle" class="description">Communication</text>
+  
+  <rect x="520" y="195" width="130" height="15" class="file-box"/>
+  <text x="530" y="205" class="file">• updater.js - Live sync</text>
+  <rect x="520" y="215" width="130" height="15" class="file-box"/>
+  <text x="530" y="225" class="file">Real-time updates</text>
+
+  <!-- Visualization Layer -->
+  <rect x="690" y="150" width="180" height="100" class="subfolder-box viz-color" rx="5"/>
+  <text x="780" y="170" text-anchor="middle" class="folder">js/visualization/</text>
+  <text x="780" y="185" text-anchor="middle" class="description">Charts & Graphics</text>
+  
+  <rect x="700" y="195" width="160" height="15" class="file-box"/>
+  <text x="710" y="205" class="file">• graph-manager.js - Charts</text>
+  <rect x="700" y="215" width="160" height="15" class="file-box"/>
+  <text x="710" y="225" class="file">• image-handler.js - Images</text>
+  <rect x="700" y="235" width="160" height="15" class="file-box"/>
+  <text x="710" y="245" class="file">Sparklines, graphs, plots</text>
+
+  <!-- Workbook Layer -->
+  <rect x="280" y="320" width="200" height="100" class="subfolder-box workbook-color" rx="5"/>
+  <text x="380" y="340" text-anchor="middle" class="folder">js/workbook/</text>
+  <text x="380" y="355" text-anchor="middle" class="description">Multi-sheet Management</text>
+  
+  <rect x="290" y="365" width="180" height="15" class="file-box"/>
+  <text x="300" y="375" class="file">• workbook.js - Sheet container</text>
+  <rect x="290" y="385" width="180" height="15" class="file-box"/>
+  <text x="300" y="395" class="file">• workbook-control.js - Tab management</text>
+  <rect x="290" y="405" width="180" height="15" class="file-box"/>
+  <text x="300" y="415" class="file">Multiple spreadsheet tabs</text>
+
+  <!-- Assets -->
+  <rect x="50" y="320" width="200" height="140" class="subfolder-box assets-color" rx="5"/>
+  <text x="150" y="340" text-anchor="middle" class="folder">Assets & Resources</text>
+  
+  <!-- CSS -->
+  <rect x="60" y="355" width="180" height="15" class="file-box"/>
+  <text x="70" y="365" class="file">css/ - Styling & themes</text>
+  
+  <!-- Images -->
+  <rect x="60" y="375" width="180" height="15" class="file-box"/>
+  <text x="70" y="385" class="file">images/ - Icons & graphics</text>
+  
+  <!-- HTML -->
+  <rect x="60" y="395" width="180" height="15" class="file-box"/>
+  <text x="70" y="405" class="file">html/ - Test pages & demos</text>
+  
+  <rect x="60" y="415" width="180" height="30" class="file-box"/>
+  <text x="70" y="425" class="file">• socialcalc.css - Main styles</text>
+  <text x="70" y="435" class="file">• screen.css, print.css, ie.css</text>
+  <text x="70" y="445" class="file">• Test HTML files for features</text>
+
+  <!-- Data Flow Arrows -->
+  <!-- From src to main components -->
+  <line x1="500" y1="110" x2="150" y2="145" class="arrow"/>
+  <line x1="500" y1="110" x2="380" y2="145" class="arrow"/>
+  <line x1="500" y1="110" x2="585" y2="145" class="arrow"/>
+  <line x1="500" y1="110" x2="780" y2="145" class="arrow"/>
+  
+  <!-- Core to UI -->
+  <line x1="250" y1="210" x2="280" y2="210" class="arrow"/>
+  
+  <!-- UI to Workbook -->
+  <line x1="380" y1="290" x2="380" y2="320" class="arrow"/>
+  
+  <!-- Network to UI -->
+  <line x1="510" y1="190" x2="480" y2="190" class="arrow"/>
+  
+  <!-- Visualization to UI -->
+  <line x1="690" y1="200" x2="480" y2="200" class="arrow"/>
+
+  <!-- Architecture Labels -->
+  <rect x="50" y="500" width="900" height="280" class="folder-box" rx="5"/>
+  <text x="500" y="525" text-anchor="middle" class="folder">Data Flow & Architecture</text>
+  
+  <text x="70" y="550" class="folder">1. Core Engine (Red):</text>
+  <text x="90" y="565" class="description">• Handles spreadsheet calculations, formula parsing, and data storage</text>
+  <text x="90" y="580" class="description">• Constants and configuration management</text>
+  <text x="90" y="595" class="description">• Number formatting and display logic</text>
+  
+  <text x="70" y="620" class="folder">2. User Interface (Blue):</text>
+  <text x="90" y="635" class="description">• Table editor provides main spreadsheet interaction</text>
+  <text x="90" y="650" class="description">• Popup management for dialogs and menus</text>
+  <text x="90" y="665" class="description">• Touch interface for mobile devices</text>
+  
+  <text x="500" y="550" class="folder">3. Network Layer (Orange):</text>
+  <text x="520" y="565" class="description">• Real-time collaboration and updates</text>
+  <text x="520" y="580" class="description">• Synchronization with server</text>
+  
+  <text x="500" y="605" class="folder">4. Visualization (Purple):</text>
+  <text x="520" y="620" class="description">• Chart and graph generation</text>
+  <text x="520" y="635" class="description">• Image handling and display</text>
+  <text x="520" y="650" class="description">• Sparklines and data visualization</text>
+  
+  <text x="70" y="690" class="folder">5. Workbook Management (Green):</text>
+  <text x="90" y="705" class="description">• Multi-sheet support with tabs</text>
+  <text x="90" y="720" class="description">• Sheet switching and management</text>
+  
+  <text x="500" y="690" class="folder">6. Assets & Styling (Gray):</text>
+  <text x="520" y="705" class="description">• CSS themes and responsive design</text>
+  <text x="520" y="720" class="description">• Icons, images, and test pages</text>
+  
+  <text x="70" y="750" class="folder">Modern Features:</text>
+  <text x="90" y="765" class="description">✓ ES6+ JavaScript with modules, classes, and async/await</text>
+  <text x="500" y="765" class="description">✓ HTML5 semantic markup and accessibility</text>
+</svg>
